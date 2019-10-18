@@ -79,7 +79,7 @@ void CommonTab::addRow(void)
     tableView->scrollToBottom();
     tableView->edit(index);
 
-    qDebug() << "Adding new row in " << getSourceModel()->tableName();
+    qDebug() << "Add new row in " << getSourceModel()->tableName();
 }
 
 void CommonTab::editTableItemFailed(const QModelIndex &index)
@@ -120,8 +120,7 @@ void CommonTab::askDelRow(void)
 void CommonTab::delRow(void)
 {
     auto tableModel = getSourceModel();
-
-    qDebug() << "Removing rows from " << tableModel->tableName();
+    int removedRowsCount = 0;
 
     auto selectedRows = tableView->selectionModel();
     if (selectedRows->hasSelection())
@@ -134,16 +133,22 @@ void CommonTab::delRow(void)
                 continue;
 
             row = index.row();
-            qDebug() << "Removing row number " << row;
             getProxyModel()->removeRow(row);
+            removedRowsCount++;
         }
 
-        tableModel->select();
-        tableView->repaint();
     }
 
+    tableModel->select();
+    tableView->repaint();
+
+    qDebug() << removedRowsCount << "rows are removed from" << tableModel->tableName();
+
     if (tableModel->rowCount() == 0)
+    {
+        qDebug() << "Table " << tableModel->tableName() << "is empty";
         setEmptyDbImage();
+    }
 }
 
 void CommonTab::setEmptyDbImage(void)
@@ -197,7 +202,7 @@ void ProjectsTab::showProjectInfo(void)
     if (selectedRows->hasSelection())
     {
         auto indexes = selectedRows->selectedIndexes();
-        int row= -1;
+        int row = -1;
         for (auto& index : indexes)
         {
             if (row == index.row())
@@ -205,7 +210,7 @@ void ProjectsTab::showProjectInfo(void)
 
             if (openedWinCount >= maxProjectInfoWinNumber)
             {
-                qDebug() << "Can't open more than " << openedWinCount << " windows at one time";
+                qDebug() << "Can't open more than" << openedWinCount << "windows at one time";
                 break;
             }
 
@@ -218,26 +223,78 @@ void ProjectsTab::showProjectInfo(void)
                                                   record.value(1).toString(),
                                                   record.value(2).toString(),
                                                   record.value(3).toDate(),
-                                                  record.value(3).toDate()};
+                                                  record.value(4).toDate()};
 
             auto projectInfoWindow = new ProjectInfoWindow(info, this);
             connect(projectInfoWindow, SIGNAL(closed(ProjectInfoWindow*)), this, SLOT(hideProjectInfo(ProjectInfoWindow*)), Qt::QueuedConnection);
+            connect(projectInfoWindow, SIGNAL(accepted(ProjectInfoWindow*)), this, SLOT(saveProjectInfo(ProjectInfoWindow*)), Qt::QueuedConnection);
             projectInfoWindow->show();
             openedWinCount++;
+
         }
     }
 }
 
 void ProjectsTab::hideProjectInfo(ProjectInfoWindow *window)
 {
-    qDebug() << "close";
+    qDebug() << "Project info window is closed";
     openedWinCount--;
     delete window;
 }
 
+void ProjectsTab::saveProjectInfo(ProjectInfoWindow *window)
+{
+    qDebug() << "Project info window provides new data";
+
+    auto tableModel = getSourceModel();
+    tableModel->setFilter(QString("%1 = '%2'").arg(DatabaseMaintainer::projectsKeyName).arg(window->getProject()));
+    tableModel->filter();
+
+    //auto ttt = getProxyModel();
+
+    for (int col = 0; col < tableModel->columnCount(); col++)
+    {
+        auto index = tableModel->index(0, col);
+        auto oldValue = tableModel->data(index).toString();
+        QLineEdit *editor = nullptr;
+
+        switch (col)
+        {
+        case DatabaseMaintainer::ProjectsTableColumn::project:
+            editor = window->editProject;
+            break;
+        case DatabaseMaintainer::ProjectsTableColumn::customer:
+            editor = window->editCustomer;
+            break;
+        case DatabaseMaintainer::ProjectsTableColumn::description:
+            editor = window->editDesc;
+            break;
+        case DatabaseMaintainer::ProjectsTableColumn::startDate:
+            editor = window->editStart;
+            break;
+        case DatabaseMaintainer::ProjectsTableColumn::endDate:
+            editor = window->editEnd;
+            break;
+        default:
+            qCritical() << "Unrecognized column:" << col;
+            goto exit;
+        }
+
+        if (editor->text() == oldValue)
+            continue;
+
+        qDebug() << oldValue << "=>" << editor->text();
+        //editDelegate->setModelData(editor, tableModel, index);
+    }
+
+exit:
+    tableModel->setFilter("");
+
+    hideProjectInfo(window);
+}
+
 void ProjectsTab::setProjectFilterByCustomer(const QString &newText)
 {
-    qDebug() << "Set filter text:" << newText;
     getProxyModel()->setFilterKeyColumn(DatabaseMaintainer::ProjectsTableColumn::customer);
     getProxyModel()->setFilterRegExp(newText);
 }

@@ -83,7 +83,8 @@ public:
 
 public slots:
     void showProjectInfo(void);
-    void hideProjectInfo(ProjectInfoWindow *obj);
+    void hideProjectInfo(ProjectInfoWindow *window);
+    void saveProjectInfo(ProjectInfoWindow *window);
 
     void setProjectFilterByCustomer(const QString &newText);
 

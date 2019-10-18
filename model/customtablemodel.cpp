@@ -1,7 +1,7 @@
 #include "customtablemodel.h"
 #include "databasemaintainer.h"
 
-SqlTableModelCustomers::SqlTableModelCustomers(QObject *parent, QSqlDatabase db)
+SqlTableModelCustomers::SqlTableModelCustomers(QObject *parent, const QSqlDatabase &db)
     : QSqlTableModel(parent, db)
 {
     setTable(DatabaseMaintainer::customersTableName);
@@ -12,7 +12,7 @@ SqlTableModelCustomers::SqlTableModelCustomers(QObject *parent, QSqlDatabase db)
     select();
 }
 
-SqlTableModelProjects::SqlTableModelProjects(QObject *parent, QSqlDatabase db)
+SqlTableModelProjects::SqlTableModelProjects(QObject *parent, const QSqlDatabase &db)
     : QSqlTableModel(parent, db)
 {
     setTable(DatabaseMaintainer::projectsTableName);

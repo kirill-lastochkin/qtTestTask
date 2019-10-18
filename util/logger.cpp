@@ -36,7 +36,7 @@ Logger::~Logger()
 
     qInstallMessageHandler(nullptr);
 
-    qDebug() << "Logs are back!";
+    qDebug() << "Logs are back to console!";
 }
 
 void Logger::logFileOverflowProcess()

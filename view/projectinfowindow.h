@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QTextEdit>
 #include <QDialog>
+#include <QLineEdit>
 
 #include "databasemaintainer.h"
 
@@ -11,20 +12,28 @@ class ProjectInfoWindow : public QDialog
 {
     Q_OBJECT
 
+    friend class ProjectsTab;
+
 public:
     explicit ProjectInfoWindow(const DatabaseMaintainer::ProjectInfo &info, QWidget *parent = nullptr);
-    ~ProjectInfoWindow();
+
+    const QString getProject(void);
+    const QString getCustomer(void);
 
 signals:
     void closed(ProjectInfoWindow *window);
-
-protected:
-    void keyPressEvent(QKeyEvent *) override;
+    void accepted(ProjectInfoWindow *window);
 
 private:
-    //QTextEdit *text;
+    QLineEdit *editProject;
+    QLineEdit *editCustomer;
+    QLineEdit *editStart;
+    QLineEdit *editEnd;
+    QLineEdit *editDesc;
 
-    void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
+    void reject() override;
+    void accept() override;
 };
 
 #endif // PROJECTINFOWINDOW_H

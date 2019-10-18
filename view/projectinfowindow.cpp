@@ -7,10 +7,13 @@
 #include <QKeyEvent>
 
 ProjectInfoWindow::ProjectInfoWindow(const DatabaseMaintainer::ProjectInfo &info, QWidget *parent)
-    : QDialog(parent, Qt::WindowMinimizeButtonHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint)
+    : QDialog(parent, Qt::WindowMinimizeButtonHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint),
+      editProject(new QLineEdit(info.project)), editCustomer(new QLineEdit(info.customer)),
+      editStart(new QLineEdit(info.start.toString(DatabaseMaintainer::dateFormat))),
+      editEnd(new QLineEdit(info.end.toString(DatabaseMaintainer::dateFormat))),
+      editDesc(new QLineEdit(info.description))
+
 {
-    //auto parentTab = reinterpret_cast<ProjectsTab*>(parent);
-    //parentTab->
     resize(MainWindow::windowWidthDefault, MainWindow::windowHeightDefault);
     setWindowTitle(tr("Project information"));
 
@@ -20,14 +23,10 @@ ProjectInfoWindow::ProjectInfoWindow(const DatabaseMaintainer::ProjectInfo &info
     auto labelEnd = new QLabel(tr("Project end date"));
     auto labelDesc = new QLabel(tr("Project description"));
 
-    auto editProject = new QLineEdit(info.project);
-    auto editCustomer = new QLineEdit(info.customer);
-    auto editStart = new QLineEdit(info.start.toString(Qt::DateFormat::ISODate));
-    auto editEnd = new QLineEdit(info.end.toString(Qt::DateFormat::ISODate));
-    auto editDesc = new QTextEdit(info.description);
+    editProject->setReadOnly(true);
 
     auto buttonBox = new QDialogButtonBox;
-    buttonBox->setStandardButtons(QDialogButtonBox::Apply);
+    buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Close);
 
     auto mainLayout = new QVBoxLayout;
     mainLayout->addWidget(labelProject);
@@ -45,27 +44,33 @@ ProjectInfoWindow::ProjectInfoWindow(const DatabaseMaintainer::ProjectInfo &info
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    qDebug() << "Project info for" << info.project << "is opened";
 }
 
-ProjectInfoWindow::~ProjectInfoWindow()
+void ProjectInfoWindow::accept()
 {
+    QDialog::accept();
+    emit accepted(this);
 }
 
-void ProjectInfoWindow::closeEvent(QCloseEvent* event)
+void ProjectInfoWindow::closeEvent(QCloseEvent*)
 {
     emit closed(this);
 }
 
-void ProjectInfoWindow::keyPressEvent(QKeyEvent *event)
+void ProjectInfoWindow::reject()
 {
-    switch (event->type()) {
-    case QEvent::KeyPress:
-        if (event->key() == Qt::Key_Escape)
-            emit closed(this);
-        break;
-    default:
-        break;
-    }
+    emit closed(this);
+    QDialog::reject();
+}
 
-    QDialog::keyPressEvent(event);
+const QString ProjectInfoWindow::getProject(void)
+{
+    return editProject->text();
+}
+
+const QString ProjectInfoWindow::getCustomer(void)
+{
+    return editCustomer->text();
 }

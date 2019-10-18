@@ -16,17 +16,16 @@ void TableEditDelegate::setModelData(QWidget *editor,
     auto lineEditor = reinterpret_cast<QLineEdit*>(editor);
     auto proxyModel = getProxyModel(model);
 
-    qDebug() << "Validating table '" << getProxySourceSqlTableModel(proxyModel)->tableName() <<
-                "', row with key:" << getKeyName(index);
+    qDebug() << "Validating new value in table" << getProxySourceSqlTableModel(proxyModel)->tableName()
+             << ", in row with key:" << getKeyName(index);
 
     if (!validateValue(index, lineEditor->text()))
     {
-        qDebug() << "Input is invalid!";
+        qDebug() << "Validation failed";
         emit validationFailed(index);
         return;
     }
 
-    qDebug() << "Input is valid";
     emit validationSucceeded(index);
 
     QStyledItemDelegate::setModelData(editor, model, index);
@@ -105,6 +104,8 @@ bool checkKeyDuplication(const QSqlTableModel* model, const QString &key, const 
 
 bool CustomerTableEditDelegate::validateCompany(const QString &newValue, const QSqlTableModel* model, int currentRow) const
 {
+    qDebug() << "Validating company name" << newValue;
+
     if (checkLengthExceeded(newValue, newValue.length(), DatabaseMaintainer::companyNameMaxLen))
         return false;
 
@@ -116,9 +117,11 @@ bool CustomerTableEditDelegate::validateCompany(const QString &newValue, const Q
 
 bool CustomerTableEditDelegate::validateCountry(const QString &newValue) const
 {
+    qDebug() << "Validating country name" << newValue;
+
     if (!isLiteral(newValue))
     {
-        qDebug() << "Inserted value '" << newValue << "'has non-literal symbols";
+        qDebug() << "Inserted value" << newValue << "has non-literal symbols";
         return false;
     }
 
@@ -130,6 +133,8 @@ bool CustomerTableEditDelegate::validateCountry(const QString &newValue) const
 
 bool CustomerTableEditDelegate::validateAddress(const QString &newValue) const
 {
+    qDebug() << "Validating address" << newValue;
+
     if (checkLengthExceeded(newValue, newValue.length(), DatabaseMaintainer::addressMaxLen))
         return false;
 
@@ -192,6 +197,8 @@ const QString ProjectTableEditDelegate::getKeyName(const QModelIndex &index) con
 
 bool ProjectTableEditDelegate::validateProject(const QString &newValue, const QSqlTableModel* model, int currentRow) const
 {
+    qDebug() << "Validating project name" << newValue;
+
     if (checkLengthExceeded(newValue, newValue.length(), DatabaseMaintainer::projectNameMaxLen))
         return false;
 
@@ -203,6 +210,8 @@ bool ProjectTableEditDelegate::validateProject(const QString &newValue, const QS
 
 bool ProjectTableEditDelegate::validateCustomer(const QString &newValue) const
 {
+    qDebug() << "Validating customer name" << newValue;
+
     if (checkLengthExceeded(newValue, newValue.length(), DatabaseMaintainer::companyNameMaxLen))
         return false;
 
@@ -211,6 +220,8 @@ bool ProjectTableEditDelegate::validateCustomer(const QString &newValue) const
 
 bool ProjectTableEditDelegate::validateDescription(const QString &newValue) const
 {
+    qDebug() << "Validating description" << newValue;
+
     if (checkLengthExceeded(newValue, newValue.length(), DatabaseMaintainer::descriptionMaxLen))
         return false;
 
@@ -219,17 +230,19 @@ bool ProjectTableEditDelegate::validateDescription(const QString &newValue) cons
 
 bool ProjectTableEditDelegate::validateStartDate(const QDate &newValue, const QSqlRecord &record) const
 {
+    qDebug() << "Validating start date" << newValue.toString(DatabaseMaintainer::dateFormat);
+
     auto currentEndDate = record.value(DatabaseMaintainer::projectsEndDateName).toDate();
 
     if (newValue.isNull())
     {
-        qDebug() << "Wrong date format";
+        qDebug() << "Wrong date format, must be" << DatabaseMaintainer::dateFormat;
         return false;
     }
 
     if (!currentEndDate.isNull() && newValue > currentEndDate)
     {
-        qDebug() << "Start date " << newValue << "is greater, than end date " << currentEndDate;
+        qDebug() << "Start date" << newValue.toString(DatabaseMaintainer::dateFormat) << "is greater, than end date" << currentEndDate.toString(DatabaseMaintainer::dateFormat);
         return false;
     }
 
@@ -238,17 +251,19 @@ bool ProjectTableEditDelegate::validateStartDate(const QDate &newValue, const QS
 
 bool ProjectTableEditDelegate::validateEndDate(const QDate &newValue, const QSqlRecord &record) const
 {
+    qDebug() << "Validating end date" << newValue.toString(DatabaseMaintainer::dateFormat);
+
     auto currentStartDate = record.value(DatabaseMaintainer::projectsStartDateName).toDate();
 
     if (newValue.isNull())
     {
-        qDebug() << "Wrong date format";
+        qDebug() << "Wrong date format, must be" << DatabaseMaintainer::dateFormat;
         return false;
     }
 
     if (newValue < currentStartDate)
     {
-        qDebug() << "End date " << newValue << "is less, than start date " << currentStartDate;
+        qDebug() << "End date" << newValue.toString(DatabaseMaintainer::dateFormat) << "is less, than start date" << currentStartDate.toString(DatabaseMaintainer::dateFormat);
         return false;
     }
 
@@ -265,7 +280,7 @@ bool checkLengthExceeded(const QString &newValue, int len, int maxLen)
 {
     if (len > maxLen)
     {
-        qDebug() << "length limit in string '" << newValue << "' is broken:" << len << " > " << maxLen;
+        qDebug() << "Length limit in string" << newValue << "is broken:" << len << ">" << maxLen;
         return true;
     }
 

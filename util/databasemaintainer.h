@@ -3,6 +3,8 @@
 
 #include <QSqlDatabase>
 #include <QDateTime>
+#include <QSqlRecord>
+#include <QSqlTableModel>
 
 class DatabaseMaintainer
 {
@@ -24,11 +26,17 @@ public:
     };
 
     static const char * const customersTableName;
+    static const char * const customersKeyName;
+    static const char * const customersCountryName;
+    static const char * const customersAddressName;
+
     static const char * const projectsTableName;
     static const char * const projectsKeyName;
-    static const char * const customersKeyName;
+    static const char * const projectsCustomerName;
+    static const char * const projectsDescName;
     static const char * const projectsEndDateName;
     static const char * const projectsStartDateName;
+
     static const char * const dateFormat;
 
     static const int companyNameMaxLen;
@@ -66,6 +74,8 @@ public:
     bool createProjectsTable(void);
     bool insertProject(const ProjectInfo &info);
     bool removeProject(const QString &project);
+    static bool updateProject(const QSqlTableModel *db, const ProjectInfo &info);
+    static const QSqlRecord getProject(const QSqlTableModel *db, const QString &project);
 
     const QSqlDatabase &getDb(void) { return db; }
 
