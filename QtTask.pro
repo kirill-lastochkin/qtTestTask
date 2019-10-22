@@ -26,6 +26,8 @@ CONFIG += c++14
 
 SOURCES += \
         constants.cpp \
+        delegate/customersdelegate.cpp \
+        delegate/projectsdelegate.cpp \
         delegate/tableeditdelegate.cpp \
         main.cpp \
         model/customtablemodel.cpp \
@@ -33,25 +35,36 @@ SOURCES += \
         util/databasemaintainer.cpp \
         util/logger.cpp \
         util/modelview.cpp \
+        util/projectinfo.cpp \
+        util/validationtools.cpp \
+        view/commontab.cpp \
+        view/customerstab.cpp \
         view/customtableview.cpp \
         view/deleterecorddialog.cpp \
         view/mainwindow.cpp \
         view/projectinfowindow.cpp \
-        view/tab.cpp \
+        view/projectstab.cpp \
         view/timeindicator.cpp
 
 HEADERS += \
+    delegate/customersdelegate.h \
+    delegate/projectsdelegate.h \
     delegate/tableeditdelegate.h \
     model/customtablemodel.h \
     test/tests.h \
+    util/customerinfo.h \
     util/databasemaintainer.h \
     util/logger.h \
     util/modelview.h \
+    util/projectinfo.h \
+    util/validationtools.h \
+    view/commontab.h \
+    view/customerstab.h \
     view/customtableview.h \
     view/deleterecorddialog.h \
     view/mainwindow.h \
     view/projectinfowindow.h \
-    view/tab.h \
+    view/projectstab.h \
     view/timeindicator.h
 
 INCLUDEPATH += \

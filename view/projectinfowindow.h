@@ -12,13 +12,11 @@ class ProjectInfoWindow : public QDialog
 {
     Q_OBJECT
 
-    friend class ProjectsTab;
-
 public:
-    explicit ProjectInfoWindow(const DatabaseMaintainer::ProjectInfo &info, QWidget *parent = nullptr);
+    explicit ProjectInfoWindow(const ProjectInfo &info, QWidget *parent = nullptr);
 
     const QString getProject(void);
-    const QString getCustomer(void);
+    const ProjectInfo getUpdatedInfo(void);
 
 signals:
     void closed(ProjectInfoWindow *window);
@@ -30,6 +28,8 @@ private:
     QLineEdit *editStart;
     QLineEdit *editEnd;
     QLineEdit *editDesc;
+
+    QString oldProjectName;
 
     void closeEvent(QCloseEvent* event) override;
     void reject() override;

@@ -15,14 +15,14 @@ TestDb::TestDb(const char * name)
     {
         QString projectName("Aveine" + QString::number(i));
         QString customerName("Noveo" + QString::number(i + 5));
-        if (!dm.insertProject(DatabaseMaintainer::ProjectInfo{projectName, customerName, "Late", QDate(2019, 9, 1), QDate(2019, 9, 30)}))
+        if (!dm.insertProject(ProjectInfo{projectName, customerName, "Late", QDate(2019, 9, 1), QDate(2019, 9, 30)}))
             return;
     }
 
     for (int i = 0; i < testCustomersCount; i++)
     {
         QString customerName("Noveo" + QString::number(i));
-        if (!dm.insertCustomer(DatabaseMaintainer::CustomerInfo{customerName, "Russia", "Akadem"}))
+        if (!dm.insertCustomer(CustomerInfo{customerName, "Russia", "Akadem"}))
             return;
     }
 

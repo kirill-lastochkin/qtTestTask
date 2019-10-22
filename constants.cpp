@@ -28,7 +28,7 @@ const char * const TimeIndicator::timeDefaultMsg = "No connection with time serv
 const char * const TimeIndicator::timeServerUrl = "http://worldtimeapi.org/api/timezone/Asia/Novosibirsk";
 const int TimeIndicator::serverSyncPeriodSecs = 60;
 
-#include "tab.h"
+#include "commontab.h"
 const int CommonTab::buttonWidthMax = 100;
 const char * const CommonTab::emptyDbImagePath = ":/image/empty.jpg";
 

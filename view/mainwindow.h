@@ -6,7 +6,8 @@
 
 #include "databasemaintainer.h"
 #include "timeindicator.h"
-#include "tab.h"
+#include "projectstab.h"
+#include "customerstab.h"
 
 #include <QLoggingCategory>
 

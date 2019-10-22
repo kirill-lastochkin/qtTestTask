@@ -1,17 +1,17 @@
 #include "projectinfowindow.h"
-#include "tab.h"
+#include "commontab.h"
 #include "mainwindow.h"
 
 #include <QLoggingCategory>
 #include <QDialogButtonBox>
 #include <QKeyEvent>
 
-ProjectInfoWindow::ProjectInfoWindow(const DatabaseMaintainer::ProjectInfo &info, QWidget *parent)
+ProjectInfoWindow::ProjectInfoWindow(const ProjectInfo &info, QWidget *parent)
     : QDialog(parent, Qt::WindowMinimizeButtonHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint),
       editProject(new QLineEdit(info.project)), editCustomer(new QLineEdit(info.customer)),
       editStart(new QLineEdit(info.start.toString(DatabaseMaintainer::dateFormat))),
       editEnd(new QLineEdit(info.end.toString(DatabaseMaintainer::dateFormat))),
-      editDesc(new QLineEdit(info.description))
+      editDesc(new QLineEdit(info.description)), oldProjectName(info.project)
 
 {
     resize(MainWindow::windowWidthDefault, MainWindow::windowHeightDefault);
@@ -22,8 +22,6 @@ ProjectInfoWindow::ProjectInfoWindow(const DatabaseMaintainer::ProjectInfo &info
     auto labelStart = new QLabel(tr("Project start date"));
     auto labelEnd = new QLabel(tr("Project end date"));
     auto labelDesc = new QLabel(tr("Project description"));
-
-    editProject->setReadOnly(true);
 
     auto buttonBox = new QDialogButtonBox;
     buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Close);
@@ -67,10 +65,14 @@ void ProjectInfoWindow::reject()
 
 const QString ProjectInfoWindow::getProject(void)
 {
-    return editProject->text();
+    return oldProjectName;
 }
 
-const QString ProjectInfoWindow::getCustomer(void)
+const ProjectInfo ProjectInfoWindow::getUpdatedInfo(void)
 {
-    return editCustomer->text();
+    return ProjectInfo { editProject->text(),
+                         editCustomer->text(),
+                         editDesc->text(),
+                         QDate::fromString(editStart->text(), DatabaseMaintainer::dateFormat),
+                         QDate::fromString(editEnd->text(), DatabaseMaintainer::dateFormat)};
 }

@@ -1,5 +1,5 @@
 #include "mainwindow.h"
-#include "tab.h"
+#include "commontab.h"
 
 #include <QLoggingCategory>
 

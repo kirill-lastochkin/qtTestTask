@@ -1,6 +1,9 @@
 #ifndef DATABASEMAINTAINER_H
 #define DATABASEMAINTAINER_H
 
+#include "customerinfo.h"
+#include "projectinfo.h"
+
 #include <QSqlDatabase>
 #include <QDateTime>
 #include <QSqlRecord>
@@ -9,22 +12,6 @@
 class DatabaseMaintainer
 {
 public:
-    struct CustomerInfo
-    {
-        QString company;
-        QString country;
-        QString address;
-    };
-
-    struct ProjectInfo
-    {
-        QString project;
-        QString customer;
-        QString description;
-        QDate start;
-        QDate end;
-    };
-
     static const char * const customersTableName;
     static const char * const customersKeyName;
     static const char * const customersCountryName;
@@ -50,6 +37,7 @@ public:
         company = 0,
         country = 1,
         address = 2,
+        customersTableColumnCount,
     };
 
     enum ProjectsTableColumn
@@ -59,6 +47,7 @@ public:
         description = 2,
         startDate = 3,
         endDate = 4,
+        projectsTableColumnCount,
     };
 
     DatabaseMaintainer();

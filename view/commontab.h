@@ -18,10 +18,9 @@ class CommonTab : public QWidget
     Q_OBJECT
 
 public:
-    friend class ProjectInfoWindow;
     explicit CommonTab(QWidget *parent = nullptr);
 
-    void setTableModel(QSqlTableModel *model);
+    virtual void setTableModel(QSqlTableModel *model);
 
 public slots:
     void addRow(void);
@@ -60,38 +59,6 @@ protected:
     {
         return reinterpret_cast<QSqlTableModel*>(getProxyModel()->sourceModel());
     }
-};
-
-
-class CustomersTab : public CommonTab
-{
-    Q_OBJECT
-
-public:
-    explicit CustomersTab(QWidget *parent = nullptr);
-};
-
-
-class ProjectsTab : public CommonTab
-{
-    Q_OBJECT
-
-public:
-    explicit ProjectsTab(QWidget *parent = nullptr);
-
-    void setTableModel(QSqlTableModel *model);
-
-public slots:
-    void showProjectInfo(void);
-    void hideProjectInfo(ProjectInfoWindow *window);
-    void saveProjectInfo(ProjectInfoWindow *window);
-
-    void setProjectFilterByCustomer(const QString &newText);
-
-private:
-    QLineEdit *editCustomerFilter;
-    const int maxProjectInfoWinNumber = 4;
-    static int openedWinCount;
 };
 
 #endif // TAB_H
