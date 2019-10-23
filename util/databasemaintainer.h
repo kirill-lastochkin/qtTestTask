@@ -63,8 +63,6 @@ public:
     bool createProjectsTable(void);
     bool insertProject(const ProjectInfo &info);
     bool removeProject(const QString &project);
-    static bool updateProject(const QSqlTableModel *db, const ProjectInfo &info);
-    static const QSqlRecord getProject(const QSqlTableModel *db, const QString &project);
 
     const QSqlDatabase &getDb(void) { return db; }
 

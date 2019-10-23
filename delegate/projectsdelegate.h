@@ -8,7 +8,7 @@ class ProjectsDelegate : public TableEditDelegate
     Q_OBJECT
 
 public:
-    ProjectsDelegate(QWidget *parent = nullptr)
+    explicit ProjectsDelegate(QWidget *parent = nullptr)
         : TableEditDelegate(parent) {}
 
 private:

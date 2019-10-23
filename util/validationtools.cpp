@@ -26,6 +26,7 @@ bool checkKeyDuplication(const QSqlTableModel* model, const QString &key, const 
     for (int row = 0; row < model->rowCount(); row++)
     {
         auto record = model->record(row);
+        qDebug() << record.value(keyName) << key;
         if (record.value(keyName) == key)
         {
             qDebug() << "Name duplication found" << key << "in row" << row;

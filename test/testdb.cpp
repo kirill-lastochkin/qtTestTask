@@ -1,7 +1,7 @@
 #include <QLoggingCategory>
 
 #include "databasemaintainer.h"
-#include "tests.h"
+#include "testdb.h"
 
 TestDb::TestDb(const char * name)
     : dm(name)

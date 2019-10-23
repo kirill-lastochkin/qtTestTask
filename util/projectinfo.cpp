@@ -69,30 +69,3 @@ bool checkSqlRecordValid(const QSqlRecord &record)
 
     return true;
 }
-
-#if 0
-bool ProjectInfo::operator==(const ProjectInfo &other) const
-{
-    if (project != other.project || customer != other.customer || description != other.description ||
-        start != other.start || end != other.end)
-    {
-        return false;
-    }
-
-    return true;
-}
-
-bool ProjectInfo::fillSqlRecord(QSqlRecord &record)
-{
-    if (!checkSqlRecordValid(record))
-        return false;
-
-    record.setValue(TableColumn::project, project);
-    record.setValue(TableColumn::customer, customer);
-    record.setValue(TableColumn::description, description);
-    record.setValue(TableColumn::startDate, start);
-    record.setValue(TableColumn::endDate, end);
-
-    return true;
-}
-#endif

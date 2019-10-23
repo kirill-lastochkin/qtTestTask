@@ -11,7 +11,7 @@ class TableEditDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    TableEditDelegate(QWidget *parent = nullptr)
+    explicit TableEditDelegate(QWidget *parent = nullptr)
         : QStyledItemDelegate(parent) {}
 
     void setModelData(QWidget *editor,

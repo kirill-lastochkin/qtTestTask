@@ -31,7 +31,7 @@ SOURCES += \
         delegate/tableeditdelegate.cpp \
         main.cpp \
         model/customtablemodel.cpp \
-        test/tests.cpp \
+        test/testdb.cpp \
         util/databasemaintainer.cpp \
         util/logger.cpp \
         util/modelview.cpp \
@@ -39,11 +39,11 @@ SOURCES += \
         util/validationtools.cpp \
         view/commontab.cpp \
         view/customerstab.cpp \
-        view/customtableview.cpp \
         view/deleterecorddialog.cpp \
         view/mainwindow.cpp \
         view/projectinfowindow.cpp \
         view/projectstab.cpp \
+        view/tableview.cpp \
         view/timeindicator.cpp
 
 HEADERS += \
@@ -51,7 +51,7 @@ HEADERS += \
     delegate/projectsdelegate.h \
     delegate/tableeditdelegate.h \
     model/customtablemodel.h \
-    test/tests.h \
+    test/testdb.h \
     util/customerinfo.h \
     util/databasemaintainer.h \
     util/logger.h \
@@ -60,11 +60,11 @@ HEADERS += \
     util/validationtools.h \
     view/commontab.h \
     view/customerstab.h \
-    view/customtableview.h \
     view/deleterecorddialog.h \
     view/mainwindow.h \
     view/projectinfowindow.h \
     view/projectstab.h \
+    view/tableview.h \
     view/timeindicator.h
 
 INCLUDEPATH += \

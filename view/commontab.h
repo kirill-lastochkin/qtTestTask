@@ -11,11 +11,13 @@
 #include "databasemaintainer.h"
 #include "projectinfowindow.h"
 #include "tableeditdelegate.h"
-#include "customtableview.h"
+#include "tableview.h"
 
 class CommonTab : public QWidget
 {
     Q_OBJECT
+
+    friend class RowSelection;
 
 public:
     explicit CommonTab(QWidget *parent = nullptr);
@@ -25,7 +27,6 @@ public:
 public slots:
     void addRow(void);
     void delRow(void);
-    void askDelRow(void);
     void setEmptyDbImage(void);
 
 private slots:
@@ -50,15 +51,41 @@ protected:
     static const char * const emptyDbImagePath;
 
 protected:
+    virtual void selectRowByKey(const QString &key) = 0;
+    virtual void deselectRow(void) = 0;
+
+    bool confirmDeletion(void);
+    inline void checkEmptyModel(const QSqlTableModel *model);
+
     inline QSortFilterProxyModel* getProxyModel(void)
     {
         return reinterpret_cast<QSortFilterProxyModel*>(tableView->model());
     }
 
-    QSqlTableModel* getSourceModel(void)
+    inline QSqlTableModel* getSourceModel(void)
     {
         return reinterpret_cast<QSqlTableModel*>(getProxyModel()->sourceModel());
     }
+
+    inline QModelIndex getNextIndex(const QModelIndex &index);
+};
+
+class RowSelection
+{
+public:
+    RowSelection() = delete;
+    explicit RowSelection(CommonTab *tab, const QString &key)
+        : owner(tab)
+    {
+        tab->selectRowByKey(key);
+    }
+    ~RowSelection()
+    {
+        owner->deselectRow();
+    }
+
+private:
+    CommonTab *owner;
 };
 
 #endif // TAB_H

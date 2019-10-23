@@ -7,7 +7,7 @@
 class DeleteRecordDialog : public QDialog
 {
 public:
-    DeleteRecordDialog(QWidget *parent = nullptr);
+    explicit DeleteRecordDialog(QWidget *parent = nullptr);
 };
 
 #endif // DELETERECORDDIALOG_H

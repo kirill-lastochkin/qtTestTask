@@ -4,7 +4,7 @@
 
 #include "databasemaintainer.h"
 #include "logger.h"
-#include "tests.h"
+#include "testdb.h"
 #include "modelview.h"
 
 #include <QLoggingCategory>

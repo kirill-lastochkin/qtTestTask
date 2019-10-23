@@ -50,47 +50,84 @@ CommonTab::CommonTab(QWidget *parent)
     setLayout(tabLayout);
 
     connect(buttonAdd, SIGNAL(clicked()), this, SLOT(addRow()));
-    connect(buttonDel, SIGNAL(clicked()), this, SLOT(askDelRow()));
+    connect(buttonDel, SIGNAL(clicked()), this, SLOT(delRow()));
 
     connect(this, SIGNAL(setActive(bool)), buttonAdd, SLOT(setEnabled(bool)));
     connect(this, SIGNAL(setActive(bool)), buttonDel, SLOT(setEnabled(bool)));
     connect(this, SIGNAL(setActiveTableWidget(QWidget*)), widgetStack, SLOT(setCurrentWidget(QWidget*)));
 }
 
-void CommonTab::setTableModel(QSqlTableModel *model)
-{
-    getProxyModel()->setSourceModel(model);
-    if (model->rowCount() == 0)
-        setEmptyDbImage();
-}
-
 void CommonTab::addRow(void)
 {
+    qDebug() << "Add new row in " << getSourceModel()->tableName();
+
     auto tableModel = getProxyModel();
-    int rowCount = tableModel->rowCount();
-    tableModel->insertRow(rowCount);
-    auto index = tableModel->index(rowCount, 0);
+    int newRowNumber = tableModel->rowCount();
+
+    tableModel->insertRow(newRowNumber);
+    tableView->scrollToBottom();
 
     connect(editDelegate, SIGNAL(validationFailed(const QModelIndex &)), this, SLOT(editTableItemFailed(const QModelIndex &)), Qt::QueuedConnection);
     connect(editDelegate, SIGNAL(validationSucceeded(const QModelIndex &)), this, SLOT(editTableItemSucceeded(const QModelIndex &)), Qt::QueuedConnection);
 
-    tableView->scrollToBottom();
-    tableView->edit(index);
-
-    qDebug() << "Add new row in " << getSourceModel()->tableName();
+    int firstColumn = 0;
+    tableView->edit(tableModel->index(newRowNumber, firstColumn));
 }
 
-void CommonTab::editTableItemFailed(const QModelIndex &index)
+void CommonTab::delRow(void)
 {
-    tableView->edit(index);
+    auto selection = tableView->selectionModel();
+    if (!selection->hasSelection())
+        return;
+
+    if (!confirmDeletion())
+        return;
+
+    auto selectedRows = selection->selectedRows();
+    for (auto &rowIndex : selectedRows)
+        getProxyModel()->removeRow(rowIndex.row());
+
+    auto tableModel = getSourceModel();
+    tableModel->select();
+    tableView->repaint();
+
+    qDebug() << selectedRows.count() << "rows were removed from" << tableModel->tableName();
+
+    checkEmptyModel(tableModel);
+}
+
+bool CommonTab::confirmDeletion(void)
+{
+    auto dialog = std::make_unique<DeleteRecordDialog>(this);
+    return (dialog->exec() == QDialog::Accepted);
+}
+
+void CommonTab::setTableModel(QSqlTableModel *model)
+{
+    getProxyModel()->setSourceModel(model);
+    checkEmptyModel(model);
+}
+
+inline void CommonTab::checkEmptyModel(const QSqlTableModel *model)
+{
+    if (model->rowCount() == 0)
+    {
+        qDebug() << "Table " << model->tableName() << "is empty";
+        setEmptyDbImage();
+    }
+}
+
+void CommonTab::setEmptyDbImage(void)
+{
+    emit setActive(false);
+    emit setActiveTableWidget(emptyDbLabel);
 }
 
 void CommonTab::editTableItemSucceeded(const QModelIndex &index)
 {
-    auto tableModel = getProxyModel();
-    auto nextIndex = tableModel->index(index.row(), index.column() + 1);
+    auto nextIndex = getNextIndex(index);
     if (tableView->isColumnHidden(nextIndex.column()))
-        nextIndex = tableModel->index(nextIndex.row(), nextIndex.column() + 1);
+        nextIndex = getNextIndex(nextIndex);
 
     if (nextIndex.isValid())
     {
@@ -101,56 +138,14 @@ void CommonTab::editTableItemSucceeded(const QModelIndex &index)
         disconnect(editDelegate, SIGNAL(validationFailed(const QModelIndex &)), this, SLOT(editTableItemFailed(const QModelIndex &)));
         disconnect(editDelegate, SIGNAL(validationSucceeded(const QModelIndex &)), this, SLOT(editTableItemSucceeded(const QModelIndex &)));
     }
-
 }
 
-void CommonTab::askDelRow(void)
+void CommonTab::editTableItemFailed(const QModelIndex &index)
 {
-    auto selectedRows = tableView->selectionModel();
-    if (!selectedRows->hasSelection())
-        return;
-
-    auto dialog = std::make_unique<DeleteRecordDialog>(this);
-    if (dialog->exec() == QDialog::Accepted)
-        delRow();
+    tableView->edit(index);
 }
 
-void CommonTab::delRow(void)
+inline QModelIndex CommonTab::getNextIndex(const QModelIndex &index)
 {
-    auto tableModel = getSourceModel();
-    int removedRowsCount = 0;
-
-    auto selectedRows = tableView->selectionModel();
-    if (selectedRows->hasSelection())
-    {
-        auto indexes = selectedRows->selectedIndexes();
-        int row= -1;
-        for (auto& index : indexes)
-        {
-            if (row == index.row())
-                continue;
-
-            row = index.row();
-            getProxyModel()->removeRow(row);
-            removedRowsCount++;
-        }
-
-    }
-
-    tableModel->select();
-    tableView->repaint();
-
-    qDebug() << removedRowsCount << "rows are removed from" << tableModel->tableName();
-
-    if (tableModel->rowCount() == 0)
-    {
-        qDebug() << "Table " << tableModel->tableName() << "is empty";
-        setEmptyDbImage();
-    }
-}
-
-void CommonTab::setEmptyDbImage(void)
-{
-    emit setActive(false);
-    emit setActiveTableWidget(emptyDbLabel);
+    return getProxyModel()->index(index.row(), index.column() + 1);
 }

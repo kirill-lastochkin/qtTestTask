@@ -30,12 +30,16 @@ void TableEditDelegate::setModelData(QWidget *editor,
 void TableEditDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     int row = index.row();
+    Qt::GlobalColor color;
+
     if (row == highlightedRow)
-        painter->fillRect(option.rect, Qt::red);
+        color = Qt::red;
     else if (row % 2 == 1)
-        painter->fillRect(option.rect, Qt::lightGray);
+        color = Qt::lightGray;
     else
-        painter->fillRect(option.rect, Qt::white);
+        color = Qt::white;
+
+    painter->fillRect(option.rect, color);
 
     QStyledItemDelegate::paint(painter, option, index);
 }

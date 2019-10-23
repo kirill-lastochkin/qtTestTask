@@ -11,7 +11,7 @@ class ModelView : public QWidget
     Q_OBJECT
 
 public:
-    ModelView(DatabaseMaintainer *dm);
+    explicit ModelView(DatabaseMaintainer *dm);
 
     void start(void);
 

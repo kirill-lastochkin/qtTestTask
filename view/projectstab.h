@@ -24,10 +24,8 @@ private:
     const int maxProjectInfoWinNumber = 4;
     static int openedWinCount;
 
-    void selectOneProjectRow(const QString &project);
-    void discardOneRowSelection(void);
-
-
+    void selectRowByKey(const QString &project) override;
+    void deselectRow(void) override;
 };
 
 #endif // PROJECTSTAB_H

@@ -36,23 +36,17 @@ ProjectsTab::ProjectsTab(QWidget *parent)
 
 void ProjectsTab::showProjectInfo(void)
 {
-    auto selectedRows = tableView->selectionModel();
-    if (selectedRows->hasSelection())
+    auto selection = tableView->selectionModel();
+    if (selection->hasSelection())
     {
-        auto indexes = selectedRows->selectedIndexes();
-        int row = -1;
-        for (auto& index : indexes)
+        auto selectedRows = selection->selectedRows();
+        for (auto& index : selectedRows)
         {
-            if (row == index.row())
-                continue;
-
             if (openedWinCount >= maxProjectInfoWinNumber)
             {
                 qDebug() << "Can't open more than" << openedWinCount << "windows at one time";
                 break;
             }
-
-            row = index.row();
 
             auto sourceIndex = getProxyModel()->mapToSource(index);
             auto record = getSourceModel()->record(sourceIndex.row());
@@ -69,17 +63,17 @@ void ProjectsTab::showProjectInfo(void)
 void ProjectsTab::saveProjectInfo(ProjectInfoWindow *window)
 {
     auto updatedInfo = window->getUpdatedInfo();
-    selectOneProjectRow(window->getProject());
+    auto tableModel = getSourceModel();
+
+    RowSelection selection(this, window->getProject());
     hideProjectInfo(window);
 
-    auto tableModel = getSourceModel();
     const int row = 0;
     int column = 0;
 
     if (!tableModel->index(row, column).isValid())
     {
         qDebug() << "Record was removed earlier";
-        discardOneRowSelection();
         return;
     }
 
@@ -90,6 +84,7 @@ void ProjectsTab::saveProjectInfo(ProjectInfoWindow *window)
     {
         const auto oldValue = oldInfo[column];
         const auto newValue = updatedInfo[column];
+
         if (newValue == oldValue)
             continue;
 
@@ -98,7 +93,7 @@ void ProjectsTab::saveProjectInfo(ProjectInfoWindow *window)
         if (!editDelegate->validateValue(tableModel, record, column, newValue))
         {
             qDebug() << "Validation failed";
-            break;
+            continue;
         }
 
         record.setValue(column, newValue);
@@ -108,8 +103,6 @@ void ProjectsTab::saveProjectInfo(ProjectInfoWindow *window)
     {
         qWarning() << "SQL Record set failed";
     }
-
-    discardOneRowSelection();
 }
 
 void ProjectsTab::hideProjectInfo(ProjectInfoWindow *window)
@@ -119,15 +112,17 @@ void ProjectsTab::hideProjectInfo(ProjectInfoWindow *window)
     delete window;
 }
 
-void ProjectsTab::selectOneProjectRow(const QString &project)
+void ProjectsTab::selectRowByKey(const QString &project)
 {
+    qDebug() << "select";
     auto tableModel = getSourceModel();
     tableModel->setFilter(QString("%1 = '%2'").arg(DatabaseMaintainer::projectsKeyName).arg(project));
     tableModel->filter();
 }
 
-void ProjectsTab::discardOneRowSelection(void)
+void ProjectsTab::deselectRow(void)
 {
+    qDebug() << "deselect";
     getSourceModel()->setFilter("");
 }
 

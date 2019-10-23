@@ -32,5 +32,5 @@ const int TimeIndicator::serverSyncPeriodSecs = 60;
 const int CommonTab::buttonWidthMax = 100;
 const char * const CommonTab::emptyDbImagePath = ":/image/empty.jpg";
 
-#include "tests.h"
+#include "testdb.h"
 const char * TestDb::testDbNameDefault  = "c:/test_zone/testdb.db3";
