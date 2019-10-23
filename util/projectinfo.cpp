@@ -19,12 +19,17 @@ ProjectInfo::ProjectInfo(const QSqlRecord &record)
     }
 }
 
+
+ProjectInfo::ProjectInfo(const ProjectInfo &other)
+    : ProjectInfo(other.project, other.customer, other.description, other.start, other.end)
+{}
+
 ProjectInfo::ProjectInfo(const QString &argProject, const QString &argCustomer, const QString &argDesc,
                          const QDate &argStart, const QDate &argEnd)
     : project(argProject), customer(argCustomer), description(argDesc), start(argStart), end(argEnd)
 {}
 
-QVariant ProjectInfo::operator[](int index)
+QVariant ProjectInfo::operator[](int index) const
 {
     switch (index)
     {

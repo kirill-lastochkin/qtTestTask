@@ -49,9 +49,8 @@ void ProjectsTab::showProjectInfo(void)
             }
 
             auto sourceIndex = getProxyModel()->mapToSource(index);
-            auto record = getSourceModel()->record(sourceIndex.row());
 
-            auto projectInfoWindow = new ProjectInfoWindow(ProjectInfo(record), this);
+            auto projectInfoWindow = new ProjectInfoWindow(getSourceModel(), sourceIndex.row(), this);
             connect(projectInfoWindow, SIGNAL(closed(ProjectInfoWindow*)), this, SLOT(hideProjectInfo(ProjectInfoWindow*)), Qt::QueuedConnection);
             connect(projectInfoWindow, SIGNAL(accepted(ProjectInfoWindow*)), this, SLOT(saveProjectInfo(ProjectInfoWindow*)), Qt::QueuedConnection);
             projectInfoWindow->show();

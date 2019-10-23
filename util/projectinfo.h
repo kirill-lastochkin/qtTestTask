@@ -16,10 +16,11 @@ struct ProjectInfo
 
     ProjectInfo() = default;
     explicit ProjectInfo(const QSqlRecord &record);
+    ProjectInfo(const ProjectInfo &other);
     explicit ProjectInfo(const QString &argProject, const QString &argCustomer, const QString &argDesc,
                          const QDate &argStart, const QDate &argEnd);
 
-    QVariant operator[](int index);
+    QVariant operator[](int index) const;
 };
 
 #endif // PROJECTSTRUCTS_H

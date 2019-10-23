@@ -25,7 +25,7 @@ CommonTab::CommonTab(QWidget *parent)
     tableView->setModel(new QSortFilterProxyModel);
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    auto pic = std::make_unique<QPixmap>(emptyDbImagePath); //new QPixmap(emptyDbImagePath);
+    auto pic = std::make_unique<QPixmap>(emptyDbImagePath);
     emptyDbLabel->setPixmap(pic->scaled(MainWindow::windowWidthDefault, MainWindow::windowHeightDefault));
 
     auto widgetStack = new QStackedWidget;

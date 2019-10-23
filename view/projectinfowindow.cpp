@@ -6,44 +6,34 @@
 #include <QDialogButtonBox>
 #include <QKeyEvent>
 
-ProjectInfoWindow::ProjectInfoWindow(const ProjectInfo &info, QWidget *parent)
+ProjectInfoWindow::ProjectInfoWindow(const QSqlTableModel *sourceModel, int row, QWidget *parent)
     : QDialog(parent, Qt::WindowMinimizeButtonHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint),
-      editProject(new QLineEdit(info.project)), editCustomer(new QLineEdit(info.customer)),
-      editStart(new QLineEdit(info.start.toString(DatabaseMaintainer::dateFormat))),
-      editEnd(new QLineEdit(info.end.toString(DatabaseMaintainer::dateFormat))),
-      editDesc(new QLineEdit(info.description)), oldProjectName(info.project)
-
+      projectInfo(sourceModel->record(row)), oldProjectName(projectInfo.project), model(sourceModel)
 {
     resize(MainWindow::windowWidthDefault, MainWindow::windowHeightDefault);
     setWindowTitle(tr("Project information"));
 
-    auto labelProject = new QLabel(tr("Project name"));
-    auto labelCustomer = new QLabel(tr("Customer name"));
-    auto labelStart = new QLabel(tr("Project start date"));
-    auto labelEnd = new QLabel(tr("Project end date"));
-    auto labelDesc = new QLabel(tr("Project description"));
+    auto mainLayout = new QVBoxLayout;
+
+    const char *headers[] = { "Project name", "Customer", "Description", "Start date", "End date"};
+    for (int column = 0; column < DatabaseMaintainer::projectsTableColumnCount; column++)
+    {
+        auto label = new QLabel(tr(headers[column]));
+        data[column] = new QLineEdit(projectInfo[column].toString());
+        mainLayout->addWidget(label);
+        mainLayout->addWidget(data[column]);
+    }
 
     auto buttonBox = new QDialogButtonBox;
     buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Close);
 
-    auto mainLayout = new QVBoxLayout;
-    mainLayout->addWidget(labelProject);
-    mainLayout->addWidget(editProject);
-    mainLayout->addWidget(labelCustomer);
-    mainLayout->addWidget(editCustomer);
-    mainLayout->addWidget(labelStart);
-    mainLayout->addWidget(editStart);
-    mainLayout->addWidget(labelEnd);
-    mainLayout->addWidget(editEnd);
-    mainLayout->addWidget(labelDesc);
-    mainLayout->addWidget(editDesc);
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    qDebug() << "Project info for" << info.project << "is opened";
+    qDebug() << "Project info for" << projectInfo.project << "is opened";
 }
 
 void ProjectInfoWindow::accept()
@@ -70,9 +60,5 @@ const QString ProjectInfoWindow::getProject(void)
 
 const ProjectInfo ProjectInfoWindow::getUpdatedInfo(void)
 {
-    return ProjectInfo { editProject->text(),
-                         editCustomer->text(),
-                         editDesc->text(),
-                         QDate::fromString(editStart->text(), DatabaseMaintainer::dateFormat),
-                         QDate::fromString(editEnd->text(), DatabaseMaintainer::dateFormat)};
+    return projectInfo;
 }
