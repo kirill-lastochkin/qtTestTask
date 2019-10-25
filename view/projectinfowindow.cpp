@@ -1,39 +1,30 @@
 #include "projectinfowindow.h"
 #include "commontab.h"
 #include "mainwindow.h"
+#include "projectinfoview.h"
 
 #include <QLoggingCategory>
 #include <QDialogButtonBox>
 #include <QKeyEvent>
 
-ProjectInfoWindow::ProjectInfoWindow(const QSqlTableModel *sourceModel, int row, QWidget *parent)
+ProjectInfoWindow::ProjectInfoWindow(QSqlTableModel *sourceModel, int row, QWidget *parent)
     : QDialog(parent, Qt::WindowMinimizeButtonHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint),
       projectInfo(sourceModel->record(row)), oldProjectName(projectInfo.project), model(sourceModel)
 {
     resize(MainWindow::windowWidthDefault, MainWindow::windowHeightDefault);
     setWindowTitle(tr("Project information"));
 
-    auto mainLayout = new QVBoxLayout;
-
-    const char *headers[] = { "Project name", "Customer", "Description", "Start date", "End date"};
-    for (int column = 0; column < DatabaseMaintainer::projectsTableColumnCount; column++)
-    {
-        auto label = new QLabel(tr(headers[column]));
-        data[column] = new QLineEdit(projectInfo[column].toString());
-        mainLayout->addWidget(label);
-        mainLayout->addWidget(data[column]);
-    }
-
+    auto view = new ProjectInfoView(sourceModel, oldProjectName);
     auto buttonBox = new QDialogButtonBox;
-    buttonBox->setStandardButtons(QDialogButtonBox::Save | QDialogButtonBox::Close);
+    buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
+    auto mainLayout = new QVBoxLayout;
+    mainLayout->addWidget(view);
     mainLayout->addWidget(buttonBox);
     setLayout(mainLayout);
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
-
-    qDebug() << "Project info for" << projectInfo.project << "is opened";
 }
 
 void ProjectInfoWindow::accept()

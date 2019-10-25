@@ -48,9 +48,9 @@ void ProjectsTab::showProjectInfo(void)
                 break;
             }
 
-            auto sourceIndex = getProxyModel()->mapToSource(index);
+            auto sourceIndex = proxyModel()->mapToSource(index);
 
-            auto projectInfoWindow = new ProjectInfoWindow(getSourceModel(), sourceIndex.row(), this);
+            auto projectInfoWindow = new ProjectInfoWindow(sourceModel(), sourceIndex.row(), this);
             connect(projectInfoWindow, SIGNAL(closed(ProjectInfoWindow*)), this, SLOT(hideProjectInfo(ProjectInfoWindow*)), Qt::QueuedConnection);
             connect(projectInfoWindow, SIGNAL(accepted(ProjectInfoWindow*)), this, SLOT(saveProjectInfo(ProjectInfoWindow*)), Qt::QueuedConnection);
             projectInfoWindow->show();
@@ -62,7 +62,6 @@ void ProjectsTab::showProjectInfo(void)
 void ProjectsTab::saveProjectInfo(ProjectInfoWindow *window)
 {
     auto updatedInfo = window->getUpdatedInfo();
-    auto tableModel = getSourceModel();
 
     RowSelection selection(this, window->getProject());
     hideProjectInfo(window);
@@ -70,16 +69,16 @@ void ProjectsTab::saveProjectInfo(ProjectInfoWindow *window)
     const int row = 0;
     int column = 0;
 
-    if (!tableModel->index(row, column).isValid())
+    if (!sourceModel()->index(row, column).isValid())
     {
         qDebug() << "Record was removed earlier";
         return;
     }
 
-    auto record = tableModel->record(row);
+    auto record = sourceModel()->record(row);
     ProjectInfo oldInfo(record);
 
-    for (column = 0; column < tableModel->columnCount(); column++)
+    for (column = 0; column < sourceModel()->columnCount(); column++)
     {
         const auto oldValue = oldInfo[column];
         const auto newValue = updatedInfo[column];
@@ -89,7 +88,7 @@ void ProjectsTab::saveProjectInfo(ProjectInfoWindow *window)
 
         qDebug() << "Validating change:" << oldValue << "=>" << newValue;
 
-        if (!editDelegate->validateValue(tableModel, record, column, newValue))
+        if (!editDelegate->validateValue(sourceModel(), record, column, newValue))
         {
             qDebug() << "Validation failed";
             continue;
@@ -98,7 +97,7 @@ void ProjectsTab::saveProjectInfo(ProjectInfoWindow *window)
         record.setValue(column, newValue);
     }
 
-    if (!tableModel->setRecord(row, record))
+    if (!sourceModel()->setRecord(row, record))
     {
         qWarning() << "SQL Record set failed";
     }
@@ -113,22 +112,19 @@ void ProjectsTab::hideProjectInfo(ProjectInfoWindow *window)
 
 void ProjectsTab::selectRowByKey(const QString &project)
 {
-    qDebug() << "select";
-    auto tableModel = getSourceModel();
-    tableModel->setFilter(QString("%1 = '%2'").arg(DatabaseMaintainer::projectsKeyName).arg(project));
-    tableModel->filter();
+    sourceModel()->setFilter(QString("%1 = '%2'").arg(DatabaseMaintainer::projectsKeyName).arg(project));
+    sourceModel()->filter();
 }
 
 void ProjectsTab::deselectRow(void)
 {
-    qDebug() << "deselect";
-    getSourceModel()->setFilter("");
+    sourceModel()->setFilter("");
 }
 
 void ProjectsTab::setProjectFilterByCustomer(const QString &newText)
 {
-    getProxyModel()->setFilterKeyColumn(DatabaseMaintainer::ProjectsTableColumn::customer);
-    getProxyModel()->setFilterRegExp(newText);
+    proxyModel()->setFilterKeyColumn(DatabaseMaintainer::ProjectsTableColumn::customer);
+    proxyModel()->setFilterRegExp(newText);
 }
 
 void ProjectsTab::setTableModel(QSqlTableModel *model)

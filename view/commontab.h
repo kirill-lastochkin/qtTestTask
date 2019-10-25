@@ -57,14 +57,14 @@ protected:
     bool confirmDeletion(void);
     inline void checkEmptyModel(const QSqlTableModel *model);
 
-    inline QSortFilterProxyModel* getProxyModel(void)
+    inline QSortFilterProxyModel* proxyModel(void)
     {
         return reinterpret_cast<QSortFilterProxyModel*>(tableView->model());
     }
 
-    inline QSqlTableModel* getSourceModel(void)
+    inline QSqlTableModel* sourceModel(void)
     {
-        return reinterpret_cast<QSqlTableModel*>(getProxyModel()->sourceModel());
+        return reinterpret_cast<QSqlTableModel*>(proxyModel()->sourceModel());
     }
 
     inline QModelIndex getNextIndex(const QModelIndex &index);

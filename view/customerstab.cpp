@@ -14,12 +14,11 @@ CustomersTab::CustomersTab(QWidget *parent)
 
 void CustomersTab::selectRowByKey(const QString &customer)
 {
-    auto tableModel = getSourceModel();
-    tableModel->setFilter(QString("%1 = '%2'").arg(DatabaseMaintainer::customersKeyName).arg(customer));
-    tableModel->filter();
+    sourceModel()->setFilter(QString("%1 = '%2'").arg(DatabaseMaintainer::customersKeyName).arg(customer));
+    sourceModel()->filter();
 }
 
 void CustomersTab::deselectRow(void)
 {
-    getSourceModel()->setFilter("");
+    sourceModel()->setFilter("");
 }

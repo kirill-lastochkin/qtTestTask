@@ -27,6 +27,7 @@ CONFIG += c++14
 SOURCES += \
         constants.cpp \
         delegate/customersdelegate.cpp \
+        delegate/projectinfodelegate.cpp \
         delegate/projectsdelegate.cpp \
         delegate/tableeditdelegate.cpp \
         main.cpp \
@@ -41,6 +42,7 @@ SOURCES += \
         view/customerstab.cpp \
         view/deleterecorddialog.cpp \
         view/mainwindow.cpp \
+        view/projectinfoview.cpp \
         view/projectinfowindow.cpp \
         view/projectstab.cpp \
         view/tableview.cpp \
@@ -48,6 +50,7 @@ SOURCES += \
 
 HEADERS += \
     delegate/customersdelegate.h \
+    delegate/projectinfodelegate.h \
     delegate/projectsdelegate.h \
     delegate/tableeditdelegate.h \
     model/customtablemodel.h \
@@ -62,6 +65,7 @@ HEADERS += \
     view/customerstab.h \
     view/deleterecorddialog.h \
     view/mainwindow.h \
+    view/projectinfoview.h \
     view/projectinfowindow.h \
     view/projectstab.h \
     view/tableview.h \

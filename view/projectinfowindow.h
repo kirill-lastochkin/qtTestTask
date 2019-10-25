@@ -14,7 +14,7 @@ class ProjectInfoWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit ProjectInfoWindow(const QSqlTableModel *sourceModel, int row, QWidget *parent = nullptr);
+    explicit ProjectInfoWindow(QSqlTableModel *sourceModel, int row, QWidget *parent = nullptr);
 
     const QString getProject(void);
     const ProjectInfo getUpdatedInfo(void);

@@ -59,19 +59,18 @@ CommonTab::CommonTab(QWidget *parent)
 
 void CommonTab::addRow(void)
 {
-    qDebug() << "Add new row in " << getSourceModel()->tableName();
+    qDebug() << "Add new row in " << sourceModel()->tableName();
 
-    auto tableModel = getProxyModel();
-    int newRowNumber = tableModel->rowCount();
+    int newRowNumber = proxyModel()->rowCount();
 
-    tableModel->insertRow(newRowNumber);
+    proxyModel()->insertRow(newRowNumber);
     tableView->scrollToBottom();
 
     connect(editDelegate, SIGNAL(validationFailed(const QModelIndex &)), this, SLOT(editTableItemFailed(const QModelIndex &)), Qt::QueuedConnection);
     connect(editDelegate, SIGNAL(validationSucceeded(const QModelIndex &)), this, SLOT(editTableItemSucceeded(const QModelIndex &)), Qt::QueuedConnection);
 
     int firstColumn = 0;
-    tableView->edit(tableModel->index(newRowNumber, firstColumn));
+    tableView->edit(proxyModel()->index(newRowNumber, firstColumn));
 }
 
 void CommonTab::delRow(void)
@@ -85,15 +84,14 @@ void CommonTab::delRow(void)
 
     auto selectedRows = selection->selectedRows();
     for (auto &rowIndex : selectedRows)
-        getProxyModel()->removeRow(rowIndex.row());
+        proxyModel()->removeRow(rowIndex.row());
 
-    auto tableModel = getSourceModel();
-    tableModel->select();
+    sourceModel()->select();
     tableView->repaint();
 
-    qDebug() << selectedRows.count() << "rows were removed from" << tableModel->tableName();
+    qDebug() << selectedRows.count() << "rows were removed from" << sourceModel()->tableName();
 
-    checkEmptyModel(tableModel);
+    checkEmptyModel(sourceModel());
 }
 
 bool CommonTab::confirmDeletion(void)
@@ -104,7 +102,7 @@ bool CommonTab::confirmDeletion(void)
 
 void CommonTab::setTableModel(QSqlTableModel *model)
 {
-    getProxyModel()->setSourceModel(model);
+    proxyModel()->setSourceModel(model);
     checkEmptyModel(model);
 }
 
@@ -147,5 +145,5 @@ void CommonTab::editTableItemFailed(const QModelIndex &index)
 
 inline QModelIndex CommonTab::getNextIndex(const QModelIndex &index)
 {
-    return getProxyModel()->index(index.row(), index.column() + 1);
+    return proxyModel()->index(index.row(), index.column() + 1);
 }
