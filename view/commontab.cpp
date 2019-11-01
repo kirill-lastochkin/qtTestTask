@@ -19,8 +19,7 @@
 
 CommonTab::CommonTab(QWidget *parent)
     : QWidget(parent), tableView(new TableView), emptyDbLabel(new QLabel),
-      tabLayout(new QVBoxLayout), buttonLayout(new QHBoxLayout),
-      spaceLayout(new QHBoxLayout)
+      tabLayout(new QVBoxLayout), buttonLayout(new QHBoxLayout)
 {
     tableView->setModel(new QSortFilterProxyModel);
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -38,6 +37,7 @@ CommonTab::CommonTab(QWidget *parent)
     auto buttonDel = new QPushButton(tr("Delete"));
     buttonDel->setMaximumWidth(buttonWidthMax);
 
+    auto spaceLayout(new QHBoxLayout);
     spaceLayout->addStretch();
 
     buttonLayout->addLayout(spaceLayout);
@@ -49,6 +49,7 @@ CommonTab::CommonTab(QWidget *parent)
 
     setLayout(tabLayout);
 
+    //connect(buttonAdd, &QPushButton::clicked, [this]() { emit this->addRowPressed(this->sourceModel()->tableName()); });
     connect(buttonAdd, SIGNAL(clicked()), this, SLOT(addRow()));
     connect(buttonDel, SIGNAL(clicked()), this, SLOT(delRow()));
 
@@ -59,18 +60,15 @@ CommonTab::CommonTab(QWidget *parent)
 
 void CommonTab::addRow(void)
 {
-    qDebug() << "Add new row in " << sourceModel()->tableName();
-
-    int newRowNumber = proxyModel()->rowCount();
-
-    proxyModel()->insertRow(newRowNumber);
+    int newRow = proxyModel()->rowCount();
+    proxyModel()->insertRow(newRow);
     tableView->scrollToBottom();
 
     connect(editDelegate, SIGNAL(validationFailed(const QModelIndex &)), this, SLOT(editTableItemFailed(const QModelIndex &)), Qt::QueuedConnection);
     connect(editDelegate, SIGNAL(validationSucceeded(const QModelIndex &)), this, SLOT(editTableItemSucceeded(const QModelIndex &)), Qt::QueuedConnection);
 
     int firstColumn = 0;
-    tableView->edit(proxyModel()->index(newRowNumber, firstColumn));
+    tableView->edit(proxyModel()->index(newRow, firstColumn));
 }
 
 void CommonTab::delRow(void)
@@ -82,16 +80,21 @@ void CommonTab::delRow(void)
     if (!confirmDeletion())
         return;
 
+    QVector<int> rows;
+
     auto selectedRows = selection->selectedRows();
     for (auto &rowIndex : selectedRows)
-        proxyModel()->removeRow(rowIndex.row());
+    {
+        auto sourceIndex = proxyModel()->mapToSource(rowIndex);
+        rows.push_front(sourceIndex.row());
+    }
 
-    sourceModel()->select();
-    tableView->repaint();
-
-    qDebug() << selectedRows.count() << "rows were removed from" << sourceModel()->tableName();
+    emit entryRemoved(sourceModel()->tableName(), rows);
 
     checkEmptyModel(sourceModel());
+    repaint();
+
+    qDebug() << selectedRows.count() << "rows were removed from" << sourceModel()->tableName();
 }
 
 bool CommonTab::confirmDeletion(void)

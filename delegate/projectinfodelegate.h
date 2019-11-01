@@ -5,6 +5,7 @@
 
 #include <QWidget>
 #include <QLoggingCategory>
+#include <QLineEdit>
 
 class ProjectInfoDelegate : public ProjectsDelegate
 {
@@ -19,9 +20,6 @@ public:
 
 signals:
     void editingFinished(void);
-
-public slots:
-    void finishEditing(void);
 };
 
 #endif // PROJECTINFODELEGATE_H

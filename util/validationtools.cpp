@@ -23,13 +23,21 @@ bool checkLengthExceeded(const QString &newValue, int len, int maxLen)
 
 bool checkKeyDuplication(const QSqlTableModel* model, const QString &key, const QString &keyName)
 {
+    bool found = false;
     for (int row = 0; row < model->rowCount(); row++)
     {
         auto record = model->record(row);
         if (record.value(keyName) == key)
         {
-            qDebug() << "Name duplication found" << key << "in row" << row;
-            return true;
+            if (found)
+            {
+                qDebug() << "Name duplication found" << key << "in row" << row;
+                return true;
+            }
+            else
+            {
+                found = true;
+            }
         }
     }
 

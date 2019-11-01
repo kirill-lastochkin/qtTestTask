@@ -6,8 +6,10 @@
 
 int ProjectsTab::openedWinCount = 0;
 
+using TableColumn = DatabaseMaintainer::ProjectsTableColumn;
+
 ProjectsTab::ProjectsTab(QWidget *parent)
-    : CommonTab(parent), editCustomerFilter(new QLineEdit)
+    : CommonTab(parent)
 {
     editDelegate = new ProjectsDelegate;
 
@@ -21,6 +23,7 @@ ProjectsTab::ProjectsTab(QWidget *parent)
     auto labelFilter = new QLabel(tr("Filter by customer"));
     labelFilter->setMaximumWidth(buttonWidthMax);
 
+    auto editCustomerFilter = new QLineEdit;
     auto filterLayout = new QHBoxLayout;
     filterLayout->addWidget(labelFilter);
     filterLayout->addWidget(editCustomerFilter);
@@ -37,93 +40,26 @@ ProjectsTab::ProjectsTab(QWidget *parent)
 void ProjectsTab::showProjectInfo(void)
 {
     auto selection = tableView->selectionModel();
-    if (selection->hasSelection())
-    {
-        auto selectedRows = selection->selectedRows();
-        for (auto& index : selectedRows)
-        {
-            if (openedWinCount >= maxProjectInfoWinNumber)
-            {
-                qDebug() << "Can't open more than" << openedWinCount << "windows at one time";
-                break;
-            }
-
-            auto sourceIndex = proxyModel()->mapToSource(index);
-
-            auto projectInfoWindow = new ProjectInfoWindow(sourceModel(), sourceIndex.row(), this);
-            connect(projectInfoWindow, SIGNAL(closed(ProjectInfoWindow*)), this, SLOT(hideProjectInfo(ProjectInfoWindow*)), Qt::QueuedConnection);
-            connect(projectInfoWindow, SIGNAL(accepted(ProjectInfoWindow*)), this, SLOT(saveProjectInfo(ProjectInfoWindow*)), Qt::QueuedConnection);
-            projectInfoWindow->show();
-            openedWinCount++;
-        }
-    }
-}
-
-void ProjectsTab::saveProjectInfo(ProjectInfoWindow *window)
-{
-    auto updatedInfo = window->getUpdatedInfo();
-
-    RowSelection selection(this, window->getProject());
-    hideProjectInfo(window);
-
-    const int row = 0;
-    int column = 0;
-
-    if (!sourceModel()->index(row, column).isValid())
-    {
-        qDebug() << "Record was removed earlier";
+    if (!selection->hasSelection())
         return;
-    }
 
-    auto record = sourceModel()->record(row);
-    ProjectInfo oldInfo(record);
-
-    for (column = 0; column < sourceModel()->columnCount(); column++)
+    for (auto& index : selection->selectedRows())
     {
-        const auto oldValue = oldInfo[column];
-        const auto newValue = updatedInfo[column];
-
-        if (newValue == oldValue)
-            continue;
-
-        qDebug() << "Validating change:" << oldValue << "=>" << newValue;
-
-        if (!editDelegate->validateValue(sourceModel(), record, column, newValue))
+        if (openedWinCount >= maxProjectInfoWinNumber)
         {
-            qDebug() << "Validation failed";
-            continue;
+            qDebug() << "Can't open more than" << openedWinCount << "windows at one time";
+            break;
         }
 
-        record.setValue(column, newValue);
+        auto project = getSqlRecord(index, tableView).value(TableColumn::project).toString();
+        emit showProjectPressed(project);
+        openedWinCount++;
     }
-
-    if (!sourceModel()->setRecord(row, record))
-    {
-        qWarning() << "SQL Record set failed";
-    }
-}
-
-void ProjectsTab::hideProjectInfo(ProjectInfoWindow *window)
-{
-    qDebug() << "Project info window is closed";
-    openedWinCount--;
-    delete window;
-}
-
-void ProjectsTab::selectRowByKey(const QString &project)
-{
-    sourceModel()->setFilter(QString("%1 = '%2'").arg(DatabaseMaintainer::projectsKeyName).arg(project));
-    sourceModel()->filter();
-}
-
-void ProjectsTab::deselectRow(void)
-{
-    sourceModel()->setFilter("");
 }
 
 void ProjectsTab::setProjectFilterByCustomer(const QString &newText)
 {
-    proxyModel()->setFilterKeyColumn(DatabaseMaintainer::ProjectsTableColumn::customer);
+    proxyModel()->setFilterKeyColumn(TableColumn::customer);
     proxyModel()->setFilterRegExp(newText);
 }
 
@@ -131,4 +67,9 @@ void ProjectsTab::setTableModel(QSqlTableModel *model)
 {
     CommonTab::setTableModel(model);
     tableView->setColumnHidden(DatabaseMaintainer::description, true);
+}
+
+void ProjectsTab::projectWindowClose(void)
+{
+    openedWinCount--;
 }

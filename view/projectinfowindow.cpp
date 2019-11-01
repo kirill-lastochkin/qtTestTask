@@ -7,14 +7,12 @@
 #include <QDialogButtonBox>
 #include <QKeyEvent>
 
-ProjectInfoWindow::ProjectInfoWindow(QSqlTableModel *sourceModel, int row, QWidget *parent)
-    : QDialog(parent, Qt::WindowMinimizeButtonHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint),
-      projectInfo(sourceModel->record(row)), oldProjectName(projectInfo.project), model(sourceModel)
+ProjectInfoWindow::ProjectInfoWindow(QWidget *parent)
+    : QDialog(parent), view(new ProjectInfoView)
 {
     resize(MainWindow::windowWidthDefault, MainWindow::windowHeightDefault);
     setWindowTitle(tr("Project information"));
 
-    auto view = new ProjectInfoView(sourceModel, oldProjectName);
     auto buttonBox = new QDialogButtonBox;
     buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
@@ -25,6 +23,25 @@ ProjectInfoWindow::ProjectInfoWindow(QSqlTableModel *sourceModel, int row, QWidg
 
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(view, SIGNAL(keyValueChanged(const QString&)), this, SLOT(changeKeyValue(const QString&)));
+}
+
+void ProjectInfoWindow::setModel(QSqlTableModel *model, const QString &key)
+{
+    proxyModel()->setSourceModel(model);
+    proxyModel()->setFilterKeyColumn(DatabaseMaintainer::ProjectsTableColumn::project);
+    proxyModel()->setFilterRegExp(key + "$");
+    view->updateText();
+}
+
+void ProjectInfoWindow::saveCurrentProjectInfo(void)
+{
+    oldProjectInfo = ProjectInfo(getSqlRecord(view));
+}
+
+void ProjectInfoWindow::changeKeyValue(const QString &key)
+{
+    newKey = key;
 }
 
 void ProjectInfoWindow::accept()
@@ -33,23 +50,13 @@ void ProjectInfoWindow::accept()
     emit accepted(this);
 }
 
-void ProjectInfoWindow::closeEvent(QCloseEvent*)
-{
-    emit closed(this);
-}
-
 void ProjectInfoWindow::reject()
 {
-    emit closed(this);
     QDialog::reject();
+    emit canceled(this);
 }
 
-const QString ProjectInfoWindow::getProject(void)
+void ProjectInfoWindow::closeEvent(QCloseEvent*)
 {
-    return oldProjectName;
-}
-
-const ProjectInfo ProjectInfoWindow::getUpdatedInfo(void)
-{
-    return projectInfo;
+    emit accepted(this);
 }

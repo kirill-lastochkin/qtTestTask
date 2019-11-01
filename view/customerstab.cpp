@@ -11,14 +11,3 @@ CustomersTab::CustomersTab(QWidget *parent)
 
     connect(tableView, SIGNAL(highlightedRowChange(int)), editDelegate, SLOT(highlightedRowChanged(int)));
 }
-
-void CustomersTab::selectRowByKey(const QString &customer)
-{
-    sourceModel()->setFilter(QString("%1 = '%2'").arg(DatabaseMaintainer::customersKeyName).arg(customer));
-    sourceModel()->filter();
-}
-
-void CustomersTab::deselectRow(void)
-{
-    sourceModel()->setFilter("");
-}

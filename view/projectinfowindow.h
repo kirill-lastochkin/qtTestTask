@@ -6,33 +6,45 @@
 #include <QDialog>
 #include <QLineEdit>
 #include <QLabel>
+#include <QSortFilterProxyModel>
+#include "projectinfoview.h"
 
 #include "databasemaintainer.h"
+#include "fetchmodelinfo.h"
+
+class ProjectInfoView;
 
 class ProjectInfoWindow : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ProjectInfoWindow(QSqlTableModel *sourceModel, int row, QWidget *parent = nullptr);
+    explicit ProjectInfoWindow(QWidget *parent = nullptr);
 
-    const QString getProject(void);
-    const ProjectInfo getUpdatedInfo(void);
+    void setModel(QSqlTableModel *model, const QString &key);
+    void saveCurrentProjectInfo(void);
+
+    const ProjectInfo& savedProjectInfo(void) { return oldProjectInfo; }
+    const QString& key(void) { return newKey; }
 
 signals:
-    void closed(ProjectInfoWindow *window);
+    void canceled(ProjectInfoWindow *window);
     void accepted(ProjectInfoWindow *window);
 
-private:
-    ProjectInfo projectInfo;
-    QLineEdit* data[DatabaseMaintainer::projectsTableColumnCount];
-    QString oldProjectName;
+private slots:
+    void changeKeyValue(const QString&);
 
-    const QSqlTableModel *model;
+private:
+    ProjectInfo oldProjectInfo;
+    ProjectInfoView *view;
+    QString newKey;
 
     void closeEvent(QCloseEvent* event) override;
     void reject() override;
     void accept() override;
+
+    inline QSortFilterProxyModel* proxyModel(void) { return viewProxyModel(view); }
+    //inline QSqlTableModel* sourceModel(void) { return viewSourceModel(view); }
 };
 
 #endif // PROJECTINFOWINDOW_H

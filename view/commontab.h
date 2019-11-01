@@ -12,12 +12,11 @@
 #include "projectinfowindow.h"
 #include "tableeditdelegate.h"
 #include "tableview.h"
+#include "fetchmodelinfo.h"
 
 class CommonTab : public QWidget
 {
     Q_OBJECT
-
-    friend class RowSelection;
 
 public:
     explicit CommonTab(QWidget *parent = nullptr);
@@ -36,6 +35,8 @@ private slots:
 signals:
     void setActive(bool);
     void setActiveTableWidget(QWidget*);
+    void entryRemoved(const QString &table, QVector<int> &rows);
+    void addRowPressed(const QString &table);
 
 protected:
     TableView *tableView;
@@ -43,7 +44,6 @@ protected:
 
     QVBoxLayout *tabLayout;
     QHBoxLayout *buttonLayout;
-    QHBoxLayout *spaceLayout;
 
     TableEditDelegate *editDelegate;
 
@@ -51,41 +51,13 @@ protected:
     static const char * const emptyDbImagePath;
 
 protected:
-    virtual void selectRowByKey(const QString &key) = 0;
-    virtual void deselectRow(void) = 0;
-
     bool confirmDeletion(void);
     inline void checkEmptyModel(const QSqlTableModel *model);
 
-    inline QSortFilterProxyModel* proxyModel(void)
-    {
-        return reinterpret_cast<QSortFilterProxyModel*>(tableView->model());
-    }
-
-    inline QSqlTableModel* sourceModel(void)
-    {
-        return reinterpret_cast<QSqlTableModel*>(proxyModel()->sourceModel());
-    }
+    inline QSortFilterProxyModel* proxyModel(void) { return viewProxyModel(tableView); }
+    inline QSqlTableModel* sourceModel(void) { return viewSourceModel(tableView); }
 
     inline QModelIndex getNextIndex(const QModelIndex &index);
-};
-
-class RowSelection
-{
-public:
-    RowSelection() = delete;
-    explicit RowSelection(CommonTab *tab, const QString &key)
-        : owner(tab)
-    {
-        tab->selectRowByKey(key);
-    }
-    ~RowSelection()
-    {
-        owner->deselectRow();
-    }
-
-private:
-    CommonTab *owner;
 };
 
 #endif // TAB_H

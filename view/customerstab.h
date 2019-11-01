@@ -9,10 +9,6 @@ class CustomersTab : public CommonTab
 
 public:
     explicit CustomersTab(QWidget *parent = nullptr);
-
-private:
-    void selectRowByKey(const QString &customer) override;
-    void deselectRow(void) override;
 };
 
 #endif // CUSTOMERSTAB_H

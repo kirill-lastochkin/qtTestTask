@@ -1,6 +1,7 @@
 #include "tableview.h"
 
 #include <QMouseEvent>
+#include <QLoggingCategory>
 
 TableView::TableView(QWidget *parent)
     : QTableView (parent)

@@ -8,14 +8,12 @@
 #include <QSortFilterProxyModel>
 #include <QMouseEvent>
 
-ProjectInfoView::ProjectInfoView(QAbstractItemModel *model, const QString &key, QWidget *parent)
+ProjectInfoView::ProjectInfoView(QWidget *parent)
     : QAbstractItemView (parent)
 {
-    //UI
     auto mainLayout = new QVBoxLayout;
 
     const char *headers[DatabaseMaintainer::projectsTableColumnCount] = {"Project name", "Customer", "Description", "Start date", "End date"};
-    int elementCount = 0;
     for (int column = 0; column < DatabaseMaintainer::projectsTableColumnCount; column++)
     {
         auto subLayout = new QVBoxLayout;
@@ -28,28 +26,41 @@ ProjectInfoView::ProjectInfoView(QAbstractItemModel *model, const QString &key, 
         mainLayout->addLayout(subLayout);
 
         connect(data[column], SIGNAL(doubleClicked(ClickableLabel *)), this, SLOT(startEditing(ClickableLabel *)));
-
-        elementCount += 2;
     }
 
     setLayout(mainLayout);
 
-    int elementHeight = 25;
-    setMinimumSize(data[0]->width() / 2, elementCount * elementHeight);
-
-    //setup model
-
-    setModel(new QSortFilterProxyModel);
-    proxyModel()->setSourceModel(model);
-    proxyModel()->setFilterKeyColumn(DatabaseMaintainer::ProjectsTableColumn::project);
-    proxyModel()->setFilterRegExp(key + "$");
-    updateText();
-
-    //delegate
+    int minWidth = data[0]->width() / 2;
+    int minHeight = DatabaseMaintainer::projectsTableColumnCount * 2 * 25;
+    setMinimumSize(minWidth, minHeight);
 
     auto delegate = new ProjectInfoDelegate;
     setItemDelegate(delegate);
     connect(delegate, SIGNAL(editingFinished(void)), this, SLOT(updateText(void)));
+
+    setModel(new QSortFilterProxyModel);
+}
+
+void ProjectInfoView::updateText(void)
+{
+    ProjectInfo info(getSqlRecord(this));
+
+    for (int column = 0; column < DatabaseMaintainer::projectsTableColumnCount; column++)
+    {
+        if (!data[column]->isVisible())
+            data[column]->setVisible(true);
+
+        auto newValue = info[column].toString();
+        auto oldValue = data[column]->text();
+
+        if (newValue == oldValue)
+            continue;
+
+        data[column]->setText(newValue);
+
+        if (column == DatabaseMaintainer::ProjectsTableColumn::project)
+            emit keyValueChanged(newValue);
+    }
 }
 
 void ProjectInfoView::startEditing(ClickableLabel *label)
@@ -59,28 +70,6 @@ void ProjectInfoView::startEditing(ClickableLabel *label)
     {
         label->hide();
         edit(index);
-    }
-}
-
-void ClickableLabel::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    QLineEdit::mouseDoubleClickEvent(event);
-    emit doubleClicked(this);
-}
-
-void ProjectInfoView::updateText(void)
-{
-    int row = 0, column = 0;
-    auto proxyIndex = proxyModel()->index(row, column, rootIndex());
-    auto sourceIndex = proxyModel()->mapToSource(proxyIndex);
-
-    ProjectInfo info(sourceModel()->record(sourceIndex.row()));
-
-    for (column = 0; column < DatabaseMaintainer::projectsTableColumnCount; column++)
-    {
-        data[column]->setText(info[column].toString());
-        if (!data[column]->isVisible())
-            data[column]->setVisible(true);
     }
 }
 
@@ -119,39 +108,4 @@ QModelIndex ProjectInfoView::indexAt(const QPoint &point) const
 void ProjectInfoView::dataChanged(const QModelIndex &, const QModelIndex &, const QVector<int> &)
 {
     updateText();
-}
-
-QModelIndex ProjectInfoView::moveCursor(CursorAction, Qt::KeyboardModifiers)
-{
-    return currentIndex();
-}
-
-int ProjectInfoView::horizontalOffset() const
-{
-    return horizontalScrollBar()->value();
-}
-
-int ProjectInfoView::verticalOffset() const
-{
-    return verticalScrollBar()->value();
-}
-
-bool ProjectInfoView::isIndexHidden(const QModelIndex &) const
-{
-    return false;
-}
-
-void ProjectInfoView::scrollTo(const QModelIndex &, ScrollHint)
-{
-    return;
-}
-
-void ProjectInfoView::setSelection(const QRect &, QItemSelectionModel::SelectionFlags)
-{
-    return;
-}
-
-QRegion ProjectInfoView::visualRegionForSelection(const QItemSelection &) const
-{
-    return QRegion();
 }

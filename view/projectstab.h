@@ -11,21 +11,18 @@ public:
     explicit ProjectsTab(QWidget *parent = nullptr);
 
     void setTableModel(QSqlTableModel *model) override;
+    void projectWindowClose(void);
 
 public slots:
     void showProjectInfo(void);
-    void hideProjectInfo(ProjectInfoWindow *window);
-    void saveProjectInfo(ProjectInfoWindow *window);
-
     void setProjectFilterByCustomer(const QString &newText);
 
+signals:
+    void showProjectPressed(const QString &);
+
 private:
-    QLineEdit *editCustomerFilter;
     const int maxProjectInfoWinNumber = 4;
     static int openedWinCount;
-
-    void selectRowByKey(const QString &project) override;
-    void deselectRow(void) override;
 };
 
 #endif // PROJECTSTAB_H

@@ -1,5 +1,6 @@
 #include "tableeditdelegate.h"
 #include "databasemaintainer.h"
+#include "logger.h"
 
 #include <QLoggingCategory>
 #include <QLineEdit>
