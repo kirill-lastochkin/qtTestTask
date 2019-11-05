@@ -6,17 +6,15 @@
 
 bool CustomersDelegate::validateValue(const QSqlTableModel *sourceModel, const QSqlRecord&, int column, const QVariant &newValue) const
 {
-    using TableColumn = DatabaseMaintainer::CustomersTableColumn;
-
     switch (column)
     {
-    case TableColumn::company:
+    case CustomersColumns::company:
         return validateCompany(newValue.toString(), sourceModel);
 
-    case TableColumn::country:
+    case CustomersColumns::country:
         return validateCountry(newValue.toString());
 
-    case TableColumn::address:
+    case CustomersColumns::address:
         return validateAddress(newValue.toString());
 
     default:

@@ -24,8 +24,8 @@ public:
     virtual void setTableModel(QSqlTableModel *model);
 
 public slots:
-    void addRow(void);
-    void delRow(void);
+    void addRow(int newRow);
+    void delRows(void);
     void setEmptyDbImage(void);
 
 private slots:
@@ -35,8 +35,9 @@ private slots:
 signals:
     void setActive(bool);
     void setActiveTableWidget(QWidget*);
-    void entryRemoved(const QString &table, QVector<int> &rows);
-    void addRowPressed(const QString &table);
+    void entriesRemoved(const QString &table, QVector<int> &rows);
+    void addButtonPressed(const QString &table);
+    void addingAllowed(bool);
 
 protected:
     TableView *tableView;

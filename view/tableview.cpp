@@ -11,8 +11,7 @@ TableView::TableView(QWidget *parent)
 
 void TableView::mouseMoveEvent(QMouseEvent *event)
 {
-    auto index = this->indexAt(event->pos());
-    int currentRow = index.row();
+    int currentRow = indexAt(event->pos()).row();
     if (currentRow != prevHighlightedRow)
     {
         prevHighlightedRow = currentRow;

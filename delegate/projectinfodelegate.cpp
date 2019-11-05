@@ -1,11 +1,6 @@
 #include "projectinfodelegate.h"
 
-#include <QLoggingCategory>
 #include <QLineEdit>
-
-ProjectInfoDelegate::ProjectInfoDelegate(QWidget *parent)
-    : ProjectsDelegate(parent)
-{}
 
 QWidget* ProjectInfoDelegate::createEditor(QWidget *parent,
                                            const QStyleOptionViewItem &,

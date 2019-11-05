@@ -7,7 +7,6 @@
 #include <QSortFilterProxyModel>
 
 #include "databasemaintainer.h"
-//#include "projectinfowindow.h"
 #include "fetchmodelinfo.h"
 
 class ClickableLabel;
@@ -23,7 +22,7 @@ public:
     QModelIndex indexAt(const QPoint &point) const override;
 
 signals:
-    void keyValueChanged(const QString&);
+    void keyValueChanged(const QString &newKey);
 
 public slots:
     void updateText(void);
@@ -34,7 +33,6 @@ protected slots:
 
 protected:
     inline QSortFilterProxyModel* proxyModel(void) { return viewProxyModel(this); }
-    //inline QSqlTableModel* sourceModel(void) { return viewSourceModel(this); }
 
 private:
     ClickableLabel* data[DatabaseMaintainer::projectsTableColumnCount];

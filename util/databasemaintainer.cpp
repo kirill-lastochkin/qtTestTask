@@ -6,7 +6,7 @@
 #include "databasemaintainer.h"
 
 DatabaseMaintainer::DatabaseMaintainer()
-    : db(QSqlDatabase::addDatabase("QSQLITE", connectionName))
+    : db(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE", connectionName)))
 {}
 
 DatabaseMaintainer::DatabaseMaintainer(const QString &dbName)
@@ -17,16 +17,18 @@ DatabaseMaintainer::DatabaseMaintainer(const QString &dbName)
 
 DatabaseMaintainer::~DatabaseMaintainer()
 {
-    if (db.isOpen())
-        db.close();
+    if (db->isOpen())
+        db->close();
+
+    delete db;
 
     QSqlDatabase::removeDatabase(connectionName);
 }
 
 bool DatabaseMaintainer::connectDatabase(const QString &dbName)
 {
-    db.setDatabaseName(dbName);
-    if (!db.open()) {
+    db->setDatabaseName(dbName);
+    if (!db->open()) {
         qCritical() << "Unaible to open DB " << dbName << "\n";
         state = DatabaseState::ConnectionFailed;
         return false;
@@ -38,7 +40,7 @@ bool DatabaseMaintainer::connectDatabase(const QString &dbName)
 
 bool DatabaseMaintainer::makeQuery(const QString &queryString)
 {
-    QSqlQuery query(db);
+    QSqlQuery query(*db);
     bool isOk = query.exec(queryString);
     if (!isOk)
         qWarning() << query.lastError();

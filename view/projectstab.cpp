@@ -4,10 +4,6 @@
 #include <QLoggingCategory>
 #include <QPushButton>
 
-int ProjectsTab::openedWinCount = 0;
-
-using TableColumn = DatabaseMaintainer::ProjectsTableColumn;
-
 ProjectsTab::ProjectsTab(QWidget *parent)
     : CommonTab(parent)
 {
@@ -37,6 +33,12 @@ ProjectsTab::ProjectsTab(QWidget *parent)
     connect(this, SIGNAL(setActive(bool)), editCustomerFilter, SLOT(setEnabled(bool)));
 }
 
+void ProjectsTab::setTableModel(QSqlTableModel *model)
+{
+    CommonTab::setTableModel(model);
+    tableView->setColumnHidden(DatabaseMaintainer::description, true);
+}
+
 void ProjectsTab::showProjectInfo(void)
 {
     auto selection = tableView->selectionModel();
@@ -45,31 +47,14 @@ void ProjectsTab::showProjectInfo(void)
 
     for (auto& index : selection->selectedRows())
     {
-        if (openedWinCount >= maxProjectInfoWinNumber)
-        {
-            qDebug() << "Can't open more than" << openedWinCount << "windows at one time";
-            break;
-        }
-
-        auto project = getSqlRecord(index, tableView).value(TableColumn::project).toString();
+        auto project = getSqlRecord(index, tableView).value(ProjectsColumns::projectsTableKey).toString();
         emit showProjectPressed(project);
-        openedWinCount++;
     }
 }
 
 void ProjectsTab::setProjectFilterByCustomer(const QString &newText)
 {
-    proxyModel()->setFilterKeyColumn(TableColumn::customer);
     proxyModel()->setFilterRegExp(newText);
-}
-
-void ProjectsTab::setTableModel(QSqlTableModel *model)
-{
-    CommonTab::setTableModel(model);
-    tableView->setColumnHidden(DatabaseMaintainer::description, true);
-}
-
-void ProjectsTab::projectWindowClose(void)
-{
-    openedWinCount--;
+    proxyModel()->setFilterKeyColumn(ProjectsColumns::customer);
+    emit addingAllowed(newText.isEmpty());
 }

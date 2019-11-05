@@ -24,9 +24,6 @@ CommonTab::CommonTab(QWidget *parent)
     tableView->setModel(new QSortFilterProxyModel);
     tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    auto pic = std::make_unique<QPixmap>(emptyDbImagePath);
-    emptyDbLabel->setPixmap(pic->scaled(MainWindow::windowWidthDefault, MainWindow::windowHeightDefault));
-
     auto widgetStack = new QStackedWidget;
     widgetStack->addWidget(tableView);
     widgetStack->addWidget(emptyDbLabel);
@@ -49,19 +46,20 @@ CommonTab::CommonTab(QWidget *parent)
 
     setLayout(tabLayout);
 
-    //connect(buttonAdd, &QPushButton::clicked, [this]() { emit this->addRowPressed(this->sourceModel()->tableName()); });
-    connect(buttonAdd, SIGNAL(clicked()), this, SLOT(addRow()));
-    connect(buttonDel, SIGNAL(clicked()), this, SLOT(delRow()));
+    connect(buttonAdd, &QPushButton::clicked, [this]() { emit this->addButtonPressed(this->sourceModel()->tableName()); });
+    connect(buttonDel, SIGNAL(clicked()), this, SLOT(delRows()));
 
+    connect(this, SIGNAL(addingAllowed(bool)), buttonAdd, SLOT(setEnabled(bool)));
     connect(this, SIGNAL(setActive(bool)), buttonAdd, SLOT(setEnabled(bool)));
     connect(this, SIGNAL(setActive(bool)), buttonDel, SLOT(setEnabled(bool)));
     connect(this, SIGNAL(setActiveTableWidget(QWidget*)), widgetStack, SLOT(setCurrentWidget(QWidget*)));
 }
 
-void CommonTab::addRow(void)
+void CommonTab::addRow(int newRow)
 {
-    int newRow = proxyModel()->rowCount();
-    proxyModel()->insertRow(newRow);
+    auto record = getSqlRecord(proxyModel()->index(newRow - 1, 0), tableView);
+    sourceModel()->setRecord(newRow, record);
+
     tableView->scrollToBottom();
 
     connect(editDelegate, SIGNAL(validationFailed(const QModelIndex &)), this, SLOT(editTableItemFailed(const QModelIndex &)), Qt::QueuedConnection);
@@ -71,7 +69,35 @@ void CommonTab::addRow(void)
     tableView->edit(proxyModel()->index(newRow, firstColumn));
 }
 
-void CommonTab::delRow(void)
+void CommonTab::editTableItemSucceeded(const QModelIndex &index)
+{
+    auto nextIndex = getNextIndex(index);
+    if (tableView->isColumnHidden(nextIndex.column()) && nextIndex.isValid())
+        nextIndex = getNextIndex(nextIndex);
+
+    if (nextIndex.isValid())
+    {
+        tableView->edit(nextIndex);
+    }
+    else
+    {
+        disconnect(editDelegate, SIGNAL(validationFailed(const QModelIndex &)), this, SLOT(editTableItemFailed(const QModelIndex &)));
+        disconnect(editDelegate, SIGNAL(validationSucceeded(const QModelIndex &)), this, SLOT(editTableItemSucceeded(const QModelIndex &)));
+        sourceModel()->select();
+    }
+}
+
+void CommonTab::editTableItemFailed(const QModelIndex &index)
+{
+    tableView->edit(index);
+}
+
+inline QModelIndex CommonTab::getNextIndex(const QModelIndex &index)
+{
+    return proxyModel()->index(index.row(), index.column() + 1);
+}
+
+void CommonTab::delRows(void)
 {
     auto selection = tableView->selectionModel();
     if (!selection->hasSelection())
@@ -81,7 +107,6 @@ void CommonTab::delRow(void)
         return;
 
     QVector<int> rows;
-
     auto selectedRows = selection->selectedRows();
     for (auto &rowIndex : selectedRows)
     {
@@ -89,7 +114,7 @@ void CommonTab::delRow(void)
         rows.push_front(sourceIndex.row());
     }
 
-    emit entryRemoved(sourceModel()->tableName(), rows);
+    emit entriesRemoved(sourceModel()->tableName(), rows);
 
     checkEmptyModel(sourceModel());
     repaint();
@@ -120,33 +145,9 @@ inline void CommonTab::checkEmptyModel(const QSqlTableModel *model)
 
 void CommonTab::setEmptyDbImage(void)
 {
+    auto pic = std::make_unique<QPixmap>(emptyDbImagePath);
+    emptyDbLabel->setPixmap(pic->scaled(MainWindow::windowWidthDefault, MainWindow::windowHeightDefault));
+
     emit setActive(false);
     emit setActiveTableWidget(emptyDbLabel);
-}
-
-void CommonTab::editTableItemSucceeded(const QModelIndex &index)
-{
-    auto nextIndex = getNextIndex(index);
-    if (tableView->isColumnHidden(nextIndex.column()))
-        nextIndex = getNextIndex(nextIndex);
-
-    if (nextIndex.isValid())
-    {
-        tableView->edit(nextIndex);
-    }
-    else
-    {
-        disconnect(editDelegate, SIGNAL(validationFailed(const QModelIndex &)), this, SLOT(editTableItemFailed(const QModelIndex &)));
-        disconnect(editDelegate, SIGNAL(validationSucceeded(const QModelIndex &)), this, SLOT(editTableItemSucceeded(const QModelIndex &)));
-    }
-}
-
-void CommonTab::editTableItemFailed(const QModelIndex &index)
-{
-    tableView->edit(index);
-}
-
-inline QModelIndex CommonTab::getNextIndex(const QModelIndex &index)
-{
-    return proxyModel()->index(index.row(), index.column() + 1);
 }

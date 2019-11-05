@@ -6,23 +6,21 @@
 
 bool ProjectsDelegate::validateValue(const QSqlTableModel *sourceModel, const QSqlRecord &oldRecord, int column, const QVariant &newValue) const
 {
-    using TableColumn = DatabaseMaintainer::ProjectsTableColumn;
-
     switch (column)
     {
-    case TableColumn::project:
+    case ProjectsColumns::project:
         return validateProject(newValue.toString(), sourceModel);
 
-    case TableColumn::customer:
+    case ProjectsColumns::customer:
         return validateCustomer(newValue.toString());
 
-    case TableColumn::description:
+    case ProjectsColumns::description:
         return validateDescription(newValue.toString());
 
-    case TableColumn::startDate:
+    case ProjectsColumns::startDate:
         return validateStartDate(newValue.toDate(), oldRecord);
 
-    case TableColumn::endDate:
+    case ProjectsColumns::endDate:
         return validateEndDate(newValue.toDate(), oldRecord);
 
     default:

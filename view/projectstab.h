@@ -11,7 +11,6 @@ public:
     explicit ProjectsTab(QWidget *parent = nullptr);
 
     void setTableModel(QSqlTableModel *model) override;
-    void projectWindowClose(void);
 
 public slots:
     void showProjectInfo(void);
@@ -19,10 +18,6 @@ public slots:
 
 signals:
     void showProjectPressed(const QString &);
-
-private:
-    const int maxProjectInfoWinNumber = 4;
-    static int openedWinCount;
 };
 
 #endif // PROJECTSTAB_H

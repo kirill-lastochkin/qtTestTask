@@ -11,10 +11,7 @@ public:
     TestDb();
     explicit TestDb(const char * name);
 
-     const char * getTestDbNameDefault(void)
-     {
-         return testDbNameDefault;
-     }
+    const char * getTestDbNameDefault(void) { return testDbNameDefault; }
 
 private:
     static const char * testDbNameDefault;

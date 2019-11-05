@@ -10,7 +10,7 @@
 ProjectInfoWindow::ProjectInfoWindow(QWidget *parent)
     : QDialog(parent), view(new ProjectInfoView)
 {
-    resize(MainWindow::windowWidthDefault, MainWindow::windowHeightDefault);
+    resize(windowWidthDefault, windowHeightDefault);
     setWindowTitle(tr("Project information"));
 
     auto buttonBox = new QDialogButtonBox;
@@ -29,7 +29,7 @@ ProjectInfoWindow::ProjectInfoWindow(QWidget *parent)
 void ProjectInfoWindow::setModel(QSqlTableModel *model, const QString &key)
 {
     proxyModel()->setSourceModel(model);
-    proxyModel()->setFilterKeyColumn(DatabaseMaintainer::ProjectsTableColumn::project);
+    proxyModel()->setFilterKeyColumn(ProjectsColumns::projectsTableKey);
     proxyModel()->setFilterRegExp(key + "$");
     view->updateText();
 }
@@ -37,11 +37,6 @@ void ProjectInfoWindow::setModel(QSqlTableModel *model, const QString &key)
 void ProjectInfoWindow::saveCurrentProjectInfo(void)
 {
     oldProjectInfo = ProjectInfo(getSqlRecord(view));
-}
-
-void ProjectInfoWindow::changeKeyValue(const QString &key)
-{
-    newKey = key;
 }
 
 void ProjectInfoWindow::accept()

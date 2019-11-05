@@ -32,7 +32,7 @@ signals:
     void accepted(ProjectInfoWindow *window);
 
 private slots:
-    void changeKeyValue(const QString&);
+    void changeKeyValue(const QString &key) { newKey = key; }
 
 private:
     ProjectInfo oldProjectInfo;
@@ -44,7 +44,9 @@ private:
     void accept() override;
 
     inline QSortFilterProxyModel* proxyModel(void) { return viewProxyModel(view); }
-    //inline QSqlTableModel* sourceModel(void) { return viewSourceModel(view); }
+
+    static const int windowWidthDefault;
+    static const int windowHeightDefault;
 };
 
 #endif // PROJECTINFOWINDOW_H

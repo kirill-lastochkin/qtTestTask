@@ -13,8 +13,8 @@ ProjectInfoView::ProjectInfoView(QWidget *parent)
 {
     auto mainLayout = new QVBoxLayout;
 
-    const char *headers[DatabaseMaintainer::projectsTableColumnCount] = {"Project name", "Customer", "Description", "Start date", "End date"};
-    for (int column = 0; column < DatabaseMaintainer::projectsTableColumnCount; column++)
+    const char *headers[ProjectsColumns::projectsTableColumnCount] = {"Project name", "Customer", "Description", "Start date", "End date"};
+    for (int column = 0; column < ProjectsColumns::projectsTableColumnCount; column++)
     {
         auto subLayout = new QVBoxLayout;
         auto label = new QLabel(tr(headers[column]));
@@ -31,7 +31,7 @@ ProjectInfoView::ProjectInfoView(QWidget *parent)
     setLayout(mainLayout);
 
     int minWidth = data[0]->width() / 2;
-    int minHeight = DatabaseMaintainer::projectsTableColumnCount * 2 * 25;
+    int minHeight = ProjectsColumns::projectsTableColumnCount * 2 * 25;
     setMinimumSize(minWidth, minHeight);
 
     auto delegate = new ProjectInfoDelegate;
@@ -45,7 +45,7 @@ void ProjectInfoView::updateText(void)
 {
     ProjectInfo info(getSqlRecord(this));
 
-    for (int column = 0; column < DatabaseMaintainer::projectsTableColumnCount; column++)
+    for (int column = 0; column < ProjectsColumns::projectsTableColumnCount; column++)
     {
         if (!data[column]->isVisible())
             data[column]->setVisible(true);
@@ -58,7 +58,7 @@ void ProjectInfoView::updateText(void)
 
         data[column]->setText(newValue);
 
-        if (column == DatabaseMaintainer::ProjectsTableColumn::project)
+        if (column == ProjectsColumns::projectsTableKey)
             emit keyValueChanged(newValue);
     }
 }
@@ -89,7 +89,7 @@ QModelIndex ProjectInfoView::indexAt(const QPoint &point) const
     int x = point.x();
     int y = point.y();
 
-    for (int column = 0; column < DatabaseMaintainer::projectsTableColumnCount; column++)
+    for (int column = 0; column < ProjectsColumns::projectsTableColumnCount; column++)
     {
         const auto label = data[column];
         const auto &p = label->pos();

@@ -9,11 +9,6 @@ ModelView::ModelView(DatabaseMaintainer *dm)
     setupTableView();
 }
 
-void ModelView::start(void)
-{
-    view->show();
-}
-
 void ModelView::setupModel(DatabaseMaintainer *dm)
 {
     modelProjects = new SqlTableModelProjects(this, dm->getDb());
@@ -22,83 +17,38 @@ void ModelView::setupModel(DatabaseMaintainer *dm)
 
 void ModelView::setupTableView(void)
 {
-    view = new MainWindow(this);
+    mainWindow = new MainWindow(this);
     projectsTab()->setTableModel(modelProjects);
     customersTab()->setTableModel(reinterpret_cast<QSqlTableModel*>(modelCustomers));
 
+    connect(projectsTab(), SIGNAL(addButtonPressed(const QString&)), this, SLOT(addEntry(const QString&)));
+    connect(customersTab(), SIGNAL(addButtonPressed(const QString&)), this, SLOT(addEntry(const QString&)));
+
+    connect(projectsTab(), SIGNAL(entriesRemoved(const QString&, QVector<int>&)), this, SLOT(removeEntries(const QString&, QVector<int>&)));
+    connect(customersTab(), SIGNAL(entriesRemoved(const QString&, QVector<int>&)), this, SLOT(removeEntries(const QString&, QVector<int>&)));
+
     connect(projectsTab(), SIGNAL(showProjectPressed(const QString &)), this, SLOT(showProject(const QString &)));
-
-    connect(projectsTab(), SIGNAL(entryRemoved(const QString&, QVector<int>&)), this, SLOT(removeEntry(const QString&, QVector<int>&)));
-    connect(customersTab(), SIGNAL(entryRemoved(const QString&, QVector<int>&)), this, SLOT(removeEntry(const QString&, QVector<int>&)));
-
-    connect(projectsTab(), SIGNAL(addRowPressed(const QString&)), this, SLOT(addEntry(const QString&)));
-    connect(customersTab(), SIGNAL(addRowPressed(const QString&)), this, SLOT(addEntry(const QString&)));
 }
 
-void ModelView::showProject(const QString &project)
+void ModelView::start(void)
 {
-    setupProjectView(project);
+    mainWindow->show();
 }
 
-void ModelView::setupProjectView(const QString &project)
+void ModelView::addEntry(const QString &table)
 {
-    auto projectInfoWindow = new ProjectInfoWindow(view);
-    projectInfoWindow->setModel(modelProjects, project);
-    projectInfoWindow->saveCurrentProjectInfo();
-
-    connect(projectInfoWindow, SIGNAL(accepted(ProjectInfoWindow*)), this, SLOT(closeProjectWindow(ProjectInfoWindow*)), Qt::QueuedConnection);
-    connect(projectInfoWindow, SIGNAL(canceled(ProjectInfoWindow*)), this, SLOT(revertProjectChanges(ProjectInfoWindow*)), Qt::QueuedConnection);
-
-    projectInfoWindow->show();
-}
-
-void ModelView::closeProjectWindow(ProjectInfoWindow *window)
-{
-    qDebug() << "Project info window is closed";
-    projectsTab()->projectWindowClose();
-    delete window;
-}
-
-void ModelView::revertProjectChanges(ProjectInfoWindow *window)
-{
-    setProject(window->savedProjectInfo(), window->key());
-    closeProjectWindow(window);
-}
-
-void ModelView::setProject(const ProjectInfo &info, const QString &key)
-{
-    qDebug() << "Set project" << key;
-    int row, maxRow = modelProjects->rowCount();
-    for (row = 0; row < maxRow; row++)
+    auto [targetModel, tab] = tableModelView(table);
+    if (targetModel != nullptr)
     {
-        auto record = modelProjects->record(row);
-        if (record.value(DatabaseMaintainer::ProjectsTableColumn::project).toString() == key)
-            break;
+        int newRow = targetModel->rowCount();
+        targetModel->insertRow(newRow);
+        tab->addRow(newRow);
     }
-
-    if (row == maxRow)
-    {
-        qDebug() << "Row wasn't found (probably already removed)";
-        return;
-    }
-
-    for (int column = 0; column < DatabaseMaintainer::projectsTableColumnCount; column++)
-        modelProjects->setData(modelProjects->index(row, column), info[column]);
 }
 
-inline MVPair ModelView::getTableModelView(const QString &table)
+void ModelView::removeEntries(const QString &table, QVector<int> &rows)
 {
-    if (table == DatabaseMaintainer::projectsTableName)
-        return MVPair(modelProjects, projectsTab());
-    else if (table == DatabaseMaintainer::customersTableName)
-        return  MVPair(modelCustomers, customersTab());
-    else
-        return MVPair(nullptr, nullptr);
-}
-
-void ModelView::removeEntry(const QString &table, QVector<int> &rows)
-{
-    QSqlTableModel *targetModel = getTableModelView(table).first;
+    QSqlTableModel *targetModel = tableModelView(table).first;
     if (targetModel != nullptr)
     {
         for (auto row : rows)
@@ -108,13 +58,64 @@ void ModelView::removeEntry(const QString &table, QVector<int> &rows)
     }
 }
 
-void ModelView::addEntry(const QString &table)
+inline MVPair ModelView::tableModelView(const QString &table)
 {
-    auto [targetModel, tab] = getTableModelView(table);
-    if (targetModel != nullptr)
+    if (table == DatabaseMaintainer::projectsTableName)
+        return MVPair(modelProjects, projectsTab());
+    else if (table == DatabaseMaintainer::customersTableName)
+        return  MVPair(modelCustomers, customersTab());
+    else
+        return MVPair(nullptr, nullptr);
+}
+
+void ModelView::showProject(const QString &project)
+{
+    if (openedWinCount >= maxProjectInfoWinNumber)
     {
-        qDebug() << "Add new row in" << table;
-        targetModel->insertRow(0);
-        //tab->addRow(0);
+        qDebug() << "Can't open more than" << maxProjectInfoWinNumber << "projects at once";
+        return;
     }
+
+    setupProjectView(project);
+    openedWinCount++;
+}
+
+void ModelView::setupProjectView(const QString &project)
+{
+    auto projectInfoWindow = new ProjectInfoWindow(mainWindow);
+    projectInfoWindow->setModel(modelProjects, project);
+    projectInfoWindow->saveCurrentProjectInfo();
+
+    connect(projectInfoWindow, SIGNAL(accepted(ProjectInfoWindow*)), this, SLOT(closeProjectView(ProjectInfoWindow*)), Qt::QueuedConnection);
+    connect(projectInfoWindow, SIGNAL(canceled(ProjectInfoWindow*)), this, SLOT(revertProjectChanges(ProjectInfoWindow*)), Qt::QueuedConnection);
+
+    projectInfoWindow->show();
+}
+
+void ModelView::closeProjectView(ProjectInfoWindow *window)
+{
+    openedWinCount--;
+    delete window;
+}
+
+void ModelView::revertProjectChanges(ProjectInfoWindow *window)
+{
+    setProject(window->savedProjectInfo(), window->key());
+    closeProjectView(window);
+}
+
+void ModelView::setProject(const ProjectInfo &info, const QString &key)
+{
+    for (int row = 0; row < modelProjects->rowCount(); row++)
+    {
+        auto record = modelProjects->record(row);
+        if (record.value(ProjectsColumns::projectsTableKey).toString() == key)
+        {
+            for (int column = 0; column < ProjectsColumns::projectsTableColumnCount; column++)
+                modelProjects->setData(modelProjects->index(row, column), info[column]);
+            return;
+        }
+    }
+
+    qDebug() << "Row wasn't found (probably already removed)";
 }

@@ -12,7 +12,8 @@ class ProjectInfoDelegate : public ProjectsDelegate
     Q_OBJECT
 
 public:
-    explicit ProjectInfoDelegate(QWidget *parent = nullptr);
+    explicit ProjectInfoDelegate(QWidget *parent = nullptr)
+        : ProjectsDelegate(parent) {}
 
     QWidget *createEditor(QWidget *parent,
                           const QStyleOptionViewItem &option,

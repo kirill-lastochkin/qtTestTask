@@ -21,7 +21,11 @@ const int DatabaseMaintainer::descriptionMaxLen = 120;
 
 #include "mainwindow.h"
 const int MainWindow::windowWidthDefault = 500;
-const int MainWindow::windowHeightDefault = 330;
+const int MainWindow::windowHeightDefault = 430;
+
+#include "projectinfowindow.h"
+const int ProjectInfoWindow::windowWidthDefault = 500;
+const int ProjectInfoWindow::windowHeightDefault = 330;
 
 #include "timeindicator.h"
 const char * const TimeIndicator::timeDefaultMsg = "No connection with time server";

@@ -14,7 +14,7 @@ void TableEditDelegate::setModelData(QWidget *editor,
     auto proxyModel = reinterpret_cast<QSortFilterProxyModel*>(model);
     auto sourceModel = reinterpret_cast<QSqlTableModel*>(proxyModel->sourceModel());
 
-    qDebug() << "Validating new value in table" << sourceModel->tableName();
+    qDebug() << "Validating new value in table" << sourceModel->tableName() << lineEditor->text();
 
     if (!validateValue(sourceModel, sourceModel->record(index.row()), index.column(), lineEditor->text()))
     {
@@ -31,21 +31,14 @@ void TableEditDelegate::setModelData(QWidget *editor,
 void TableEditDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     int row = index.row();
-    Qt::GlobalColor color;
+    auto color = Qt::white;
 
     if (row == highlightedRow)
         color = Qt::red;
     else if (row % 2 == 1)
         color = Qt::lightGray;
-    else
-        color = Qt::white;
 
     painter->fillRect(option.rect, color);
 
     QStyledItemDelegate::paint(painter, option, index);
-}
-
-void TableEditDelegate::highlightedRowChanged(int newRow)
-{
-    highlightedRow = newRow;
 }

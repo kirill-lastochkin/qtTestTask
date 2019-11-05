@@ -22,7 +22,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-CONFIG += c++17
+CONFIG += c++1z
 
 SOURCES += \
         constants.cpp \
@@ -53,7 +53,7 @@ HEADERS += \
     delegate/projectinfodelegate.h \
     delegate/projectsdelegate.h \
     delegate/tableeditdelegate.h \
-    model/customtablemodel.h \
+    model/customtablemodels.h \
     test/testdb.h \
     util/customerinfo.h \
     util/databasemaintainer.h \
@@ -86,3 +86,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     emptydbpicture.qrc
+
+QMAKE_CXXFLAGS += -Wno-padded

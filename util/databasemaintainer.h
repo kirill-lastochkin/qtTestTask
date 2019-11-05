@@ -34,7 +34,8 @@ public:
 
     enum CustomersTableColumn
     {
-        company = 0,
+        customersTableKey = 0,
+        company = customersTableKey,
         country = 1,
         address = 2,
         customersTableColumnCount,
@@ -42,7 +43,8 @@ public:
 
     enum ProjectsTableColumn
     {
-        project = 0,
+        projectsTableKey = 0,
+        project = projectsTableKey,
         customer = 1,
         description = 2,
         startDate = 3,
@@ -64,7 +66,7 @@ public:
     bool insertProject(const ProjectInfo &info);
     bool removeProject(const QString &project);
 
-    const QSqlDatabase &getDb(void) { return db; }
+    const QSqlDatabase &getDb(void) { return *db; }
 
 private:
     enum class DatabaseState
@@ -78,10 +80,13 @@ private:
 
     const char * const connectionName = "connection_dflt";
 
-    QSqlDatabase db;
+    QSqlDatabase *db;
     DatabaseState state = DatabaseState::NotConnected;
 
     bool makeQuery(const QString &queryString);
 };
+
+typedef DatabaseMaintainer::ProjectsTableColumn ProjectsColumns;
+typedef DatabaseMaintainer::CustomersTableColumn CustomersColumns;
 
 #endif // DATABASEMAINTAINER_H

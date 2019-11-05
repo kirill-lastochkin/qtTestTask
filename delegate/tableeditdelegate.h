@@ -26,7 +26,7 @@ signals:
     void validationSucceeded(const QModelIndex &index) const;
 
 private slots:
-    void highlightedRowChanged(int newRow);
+    void highlightedRowChanged(int newRow) { highlightedRow = newRow; }
 
 protected:
     int highlightedRow = -1;

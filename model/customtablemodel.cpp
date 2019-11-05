@@ -1,4 +1,4 @@
-#include "customtablemodel.h"
+#include "customtablemodels.h"
 #include "databasemaintainer.h"
 
 SqlTableModelCustomers::SqlTableModelCustomers(QObject *parent, const QSqlDatabase &db)

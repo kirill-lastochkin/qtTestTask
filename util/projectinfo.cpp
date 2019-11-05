@@ -5,20 +5,17 @@
 
 bool checkSqlRecordValid(const QSqlRecord &record);
 
-using TableColumn = DatabaseMaintainer::ProjectsTableColumn;
-
 ProjectInfo::ProjectInfo(const QSqlRecord &record)
 {
     if (checkSqlRecordValid(record))
     {
-        project = record.value(TableColumn::project).toString();
-        customer = record.value(TableColumn::customer).toString();
-        description = record.value(TableColumn::description).toString();
-        start = record.value(TableColumn::startDate).toDate();
-        end = record.value(TableColumn::endDate).toDate();
+        project = record.value(ProjectsColumns::project).toString();
+        customer = record.value(ProjectsColumns::customer).toString();
+        description = record.value(ProjectsColumns::description).toString();
+        start = record.value(ProjectsColumns::startDate).toDate();
+        end = record.value(ProjectsColumns::endDate).toDate();
     }
 }
-
 
 ProjectInfo::ProjectInfo(const ProjectInfo &other)
     : ProjectInfo(other.project, other.customer, other.description, other.start, other.end)
@@ -33,19 +30,19 @@ QVariant ProjectInfo::operator[](int index) const
 {
     switch (index)
     {
-    case TableColumn::project:
+    case ProjectsColumns::project:
         return QVariant(project);
 
-    case TableColumn::customer:
+    case ProjectsColumns::customer:
         return QVariant(customer);
 
-    case TableColumn::description:
+    case ProjectsColumns::description:
         return QVariant(description);
 
-    case TableColumn::startDate:
+    case ProjectsColumns::startDate:
         return QVariant(start);
 
-    case TableColumn::endDate:
+    case ProjectsColumns::endDate:
         return QVariant(end);
 
     default:
@@ -56,7 +53,7 @@ QVariant ProjectInfo::operator[](int index) const
 
 bool checkSqlRecordValid(const QSqlRecord &record)
 {
-    if (record.count() != TableColumn::projectsTableColumnCount)
+    if (record.count() != ProjectsColumns::projectsTableColumnCount)
     {
         qWarning() << "Invalid sql record with" << record.count() << "fields";
         return false;

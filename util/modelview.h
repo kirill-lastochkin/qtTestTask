@@ -4,7 +4,7 @@
 #include "databasemaintainer.h"
 #include "mainwindow.h"
 #include "commontab.h"
-#include "customtablemodel.h"
+#include "customtablemodels.h"
 #include "projectinfo.h"
 
 using MVPair = QPair<QSqlTableModel *, CommonTab *>;
@@ -21,23 +21,26 @@ public:
     void setupTableView(void);
     void setupProjectView(const QString &project);
 
-    ProjectsTab* projectsTab(void) { return view->getProjectsTab(); }
-    CustomersTab* customersTab(void) { return view->getCustomersTab(); }
+    ProjectsTab* projectsTab(void) { return mainWindow->getProjectsTab(); }
+    CustomersTab* customersTab(void) { return mainWindow->getCustomersTab(); }
 
 public slots:
-    void showProject(const QString &project);
-    void closeProjectWindow(ProjectInfoWindow *window);
-    void revertProjectChanges(ProjectInfoWindow *window);
-    void setProject(const ProjectInfo &info, const QString &key);
-    void removeEntry(const QString &table, QVector<int> &rows);
+    void removeEntries(const QString &table, QVector<int> &rows);
     void addEntry(const QString &table);
+    void showProject(const QString &project);
+    void closeProjectView(ProjectInfoWindow *window);
+    void revertProjectChanges(ProjectInfoWindow *window);
 
 private:
-    inline MVPair getTableModelView(const QString &table);
+    inline MVPair tableModelView(const QString &table);
+    void setProject(const ProjectInfo &info, const QString &key);
 
     SqlTableModelCustomers *modelCustomers;
     SqlTableModelProjects *modelProjects;
-    MainWindow *view;
+    MainWindow *mainWindow;
+
+    int openedWinCount = 0;
+    const int maxProjectInfoWinNumber = 4;
 };
 
 #endif // MODELVIEW_H
