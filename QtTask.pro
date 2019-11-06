@@ -37,6 +37,7 @@ SOURCES += \
         util/DBmaintainer/databasemaintainer.cpp \
         util/common/projectinfo.cpp \
         util/logger/logger.cpp \
+        util/tools/postmessage.cpp \
         util/tools/validationtools.cpp \
         view/tabs/commontab.cpp \
         view/tabs/customerstab.cpp \
@@ -61,6 +62,7 @@ HEADERS += \
     util/common/projectinfo.h \
     util/logger/logger.h \
     util/tools/fetchmodelinfo.h \
+    util/tools/postmessage.h \
     util/tools/validationtools.h \
     view/tabs/commontab.h \
     view/tabs/customerstab.h \

@@ -1,6 +1,7 @@
 #include "projectsdelegate.h"
 #include "databasemaintainer.h"
 #include "validationtools.h"
+#include "postmessage.h"
 
 #include <QLoggingCategory>
 
@@ -37,7 +38,7 @@ bool ProjectsDelegate::validateProject(const QString &newValue, const QSqlTableM
     if (checkEmptyValue(newValue))
         return false;
 
-    if (checkLengthExceeded(newValue, newValue.length(), DatabaseMaintainer::projectNameMaxLen))
+    if (checkLengthExceeded(newValue.length(), DatabaseMaintainer::projectNameMaxLen))
         return false;
 
     if (checkKeyDuplication(model, newValue, DatabaseMaintainer::projectsKeyName))
@@ -50,7 +51,7 @@ bool ProjectsDelegate::validateCustomer(const QString &newValue) const
 {
     qDebug() << "Validating customer name" << newValue;
 
-    if (checkLengthExceeded(newValue, newValue.length(), DatabaseMaintainer::companyNameMaxLen))
+    if (checkLengthExceeded(newValue.length(), DatabaseMaintainer::companyNameMaxLen))
         return false;
 
     return true;
@@ -60,7 +61,7 @@ bool ProjectsDelegate::validateDescription(const QString &newValue) const
 {
     qDebug() << "Validating description" << newValue;
 
-    if (checkLengthExceeded(newValue, newValue.length(), DatabaseMaintainer::descriptionMaxLen))
+    if (checkLengthExceeded(newValue.length(), DatabaseMaintainer::descriptionMaxLen))
         return false;
 
     return true;
@@ -74,13 +75,14 @@ bool ProjectsDelegate::validateStartDate(const QDate &newValue, const QSqlRecord
 
     if (newValue.isNull())
     {
-        qDebug() << "Wrong date format, must be" << DatabaseMaintainer::dateFormat;
+        showMessage(QString("Wrong date format, must be %1").arg(DatabaseMaintainer::dateFormat));
         return false;
     }
 
     if (!currentEndDate.isNull() && newValue > currentEndDate)
     {
-        qDebug() << "Start date" << newValue.toString(DatabaseMaintainer::dateFormat) << "is greater, than end date" << currentEndDate.toString(DatabaseMaintainer::dateFormat);
+        showMessage(QString("Start date %1 is greater, than end date %2").arg(newValue.toString(DatabaseMaintainer::dateFormat))
+                    .arg(currentEndDate.toString(DatabaseMaintainer::dateFormat)));
         return false;
     }
 
@@ -95,13 +97,14 @@ bool ProjectsDelegate::validateEndDate(const QDate &newValue, const QSqlRecord &
 
     if (newValue.isNull())
     {
-        qDebug() << "Wrong date format, must be" << DatabaseMaintainer::dateFormat;
+        showMessage(QString("Wrong date format, must be %1").arg(DatabaseMaintainer::dateFormat));
         return false;
     }
 
     if (newValue < currentStartDate)
     {
-        qDebug() << "End date" << newValue.toString(DatabaseMaintainer::dateFormat) << "is less, than start date" << currentStartDate.toString(DatabaseMaintainer::dateFormat);
+        showMessage(QString("End date %1 is less, than start date %2").arg(newValue.toString(DatabaseMaintainer::dateFormat))
+                    .arg(currentStartDate.toString(DatabaseMaintainer::dateFormat)));
         return false;
     }
 

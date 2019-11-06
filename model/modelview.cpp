@@ -1,5 +1,6 @@
 #include "modelview.h"
 #include "projectinfowindow.h"
+#include "postmessage.h"
 
 #include <QPair>
 #include <QLoggingCategory>
@@ -21,6 +22,8 @@ void ModelView::setupTableView(void)
     mainWindow = new MainWindow(this);
     projectsTab()->setTableModel(modelProjects);
     customersTab()->setTableModel(reinterpret_cast<QSqlTableModel*>(modelCustomers));
+
+    registerMessagesParentWindow(mainWindow);
 
     connect(projectsTab(), SIGNAL(addButtonPressed(const QString&)), this, SLOT(addEntry(const QString&)));
     connect(customersTab(), SIGNAL(addButtonPressed(const QString&)), this, SLOT(addEntry(const QString&)));
@@ -73,7 +76,7 @@ void ModelView::showProject(const QString &project)
 {
     if (openedProjectInfoWinNumber >= maxProjectInfoWinNumber)
     {
-        qDebug() << "Can't open more than" << maxProjectInfoWinNumber << "projects at once";
+        showMessage(QString("Can't open more than %1 projects at once").arg(maxProjectInfoWinNumber));
         return;
     }
 

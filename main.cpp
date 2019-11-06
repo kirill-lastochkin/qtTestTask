@@ -8,9 +8,15 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    //Logger::getLogger().initLogger("logs.txt", "logs"); //redirect logs to file (TODO file/folder name from args)
-    //TestDb db; //create test DB (optional)
-    DatabaseMaintainer dbMaintainer("c:/test_zone/testdb.db3"); //connect to DB (TODO DB name from args)
+    auto args = QApplication::arguments();
+    bool createTestDb = argc > 1 && args.at(1) == "test";
+
+    startLogging(); //TODO: get directory/file from args
+
+    if (createTestDb)
+        TestDb db;
+
+    DatabaseMaintainer dbMaintainer(TestDb::getTestDbNameDefault());
     ModelView mv(&dbMaintainer);
 
     mv.start();

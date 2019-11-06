@@ -92,10 +92,10 @@ QModelIndex ProjectInfoView::indexAt(const QPoint &point) const
     for (int column = 0; column < ProjectsColumns::projectsTableColumnCount; column++)
     {
         const auto label = data[column];
-        const auto &p = label->pos();
+        const auto &pos = label->pos();
 
-        if (x >= p.x() && x < p.x() + label->width() - 1 &&
-            y >= p.y() && y < p.y() + label->height() - 1)
+        if (x >= pos.x() && x < pos.x() + label->width() - 1 &&
+            y >= pos.y() && y < pos.y() + label->height() - 1)
         {
             int row = 0;
             return model()->index(row, column, rootIndex());

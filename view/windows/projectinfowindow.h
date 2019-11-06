@@ -25,7 +25,7 @@ signals:
     void accepted(ProjectInfoWindow *window);
 
 private slots:
-    void changeKeyValue(const QString &key) { newKey = key; }
+    void changeKeyValue(const QString &key);
 
 private:
     ProjectInfo oldProjectInfo;

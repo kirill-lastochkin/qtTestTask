@@ -1,6 +1,6 @@
 #include "validationtools.h"
+#include "postmessage.h"
 
-#include <QLoggingCategory>
 #include <QString>
 #include <QRegExp>
 #include <QSqlRecord>
@@ -11,11 +11,11 @@ bool isLiteral(const QString &str)
     return (reg.indexIn(str) == -1);
 }
 
-bool checkLengthExceeded(const QString &newValue, int len, int maxLen)
+bool checkLengthExceeded(int len, int maxLen)
 {
     if (len > maxLen)
     {
-        qDebug() << "Length limit in string" << newValue << "is broken:" << len << ">" << maxLen;
+        showMessage(QString("Maximum length is %1").arg(maxLen));
         return true;
     }
 
@@ -29,7 +29,7 @@ bool checkKeyDuplication(const QSqlTableModel* model, const QString &key, const 
         auto record = model->record(row);
         if (record.value(keyName) == key)
         {
-            qDebug() << "Name duplication found" << key << "in row" << row;
+            showMessage(QString("Key '%1' matches with existing entry key in row %2").arg(key).arg(row + 1));
             return true;
         }
     }
@@ -41,7 +41,7 @@ bool checkEmptyValue(const QString &newValue)
 {
     if (newValue.isEmpty())
     {
-        qDebug() << "Trying to set empty value";
+        showMessage("Trying to set empty value");
         return true;
     }
 

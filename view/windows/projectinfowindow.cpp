@@ -30,6 +30,12 @@ void ProjectInfoWindow::setModel(QSqlTableModel *model, const QString &key)
 {
     proxyModel()->setSourceModel(model);
     proxyModel()->setFilterKeyColumn(ProjectsColumns::projectsTableKey);
+    changeKeyValue(key);
+}
+
+void ProjectInfoWindow::changeKeyValue(const QString &key)
+{
+    newKey = key;
     proxyModel()->setFilterRegExp(key + "$");
     view->updateText();
 }

@@ -5,7 +5,12 @@
 #include <QDir>
 #include <QDateTime>
 
-void Logger::initLogger(const QString &loggingFileName, const QString &loggingFolderName)
+void startLogging(const QString &loggingFolderName)
+{
+    Logger::getLogger().initLogger(loggingFolderName);
+}
+
+void Logger::initLogger(const QString &loggingFolderName)
 {
     if (inited)
         return;
@@ -18,12 +23,12 @@ void Logger::initLogger(const QString &loggingFileName, const QString &loggingFo
     }
 
     QString currentDate = QDateTime().currentDateTime().toString(Qt::ISODate);
-    QString fullOutputName = loggingFolderName + "/" + currentDate.replace(":", "_") + "_" + loggingFileName;
+    QString fullOutputName = loggingFolderName + "/" + currentDate.replace(":", "_") + "_" + "log.txt";
 
     loggingFile.setFileName(fullOutputName);
     loggingFile.open(QIODevice::WriteOnly);
 
-    qDebug() << "Logs are redirected to" << loggingFileName;
+    qDebug() << "Logs are redirected to" << fullOutputName;
 
     qInstallMessageHandler(logMessageHandler);
     inited = true;

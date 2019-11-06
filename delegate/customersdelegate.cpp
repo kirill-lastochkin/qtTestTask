@@ -1,6 +1,7 @@
 #include "customersdelegate.h"
 #include "databasemaintainer.h"
 #include "validationtools.h"
+#include "postmessage.h"
 
 #include <QLoggingCategory>
 
@@ -32,7 +33,7 @@ bool CustomersDelegate::validateCompany(const QString &newValue, const QSqlTable
     if (checkEmptyValue(newValue))
         return false;
 
-    if (checkLengthExceeded(newValue, newValue.length(), DatabaseMaintainer::companyNameMaxLen))
+    if (checkLengthExceeded(newValue.length(), DatabaseMaintainer::companyNameMaxLen))
         return false;
 
     if (checkKeyDuplication(model, newValue, DatabaseMaintainer::customersKeyName))
@@ -50,11 +51,11 @@ bool CustomersDelegate::validateCountry(const QString &newValue) const
 
     if (!isLiteral(newValue))
     {
-        qDebug() << "Inserted value" << newValue << "has non-literal symbols";
+        showMessage(QString("Inserted value '%1' has non-literal symbols").arg(newValue));
         return false;
     }
 
-    if (checkLengthExceeded(newValue, newValue.length(), DatabaseMaintainer::countryNameMaxLen))
+    if (checkLengthExceeded(newValue.length(), DatabaseMaintainer::countryNameMaxLen))
         return false;
 
     return true;
@@ -67,7 +68,7 @@ bool CustomersDelegate::validateAddress(const QString &newValue) const
     if (checkEmptyValue(newValue))
         return false;
 
-    if (checkLengthExceeded(newValue, newValue.length(), DatabaseMaintainer::addressMaxLen))
+    if (checkLengthExceeded(newValue.length(), DatabaseMaintainer::addressMaxLen))
         return false;
 
     return true;

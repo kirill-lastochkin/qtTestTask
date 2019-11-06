@@ -5,11 +5,12 @@
 #include <QFile>
 
 void logMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+void startLogging(const QString &loggingFolderName = "logs");
 
 class Logger
 {
-public:
-    void initLogger(const QString &loggingFileName, const QString &loggingFolderName);
+private:
+    void initLogger(const QString &loggingFolderName);
 
     static Logger& getLogger()
     {
@@ -17,7 +18,6 @@ public:
         return logger;
     }
 
-private:
     ~Logger();
     Logger() {}
     Logger(const Logger&) = delete;
@@ -30,6 +30,7 @@ private:
 
     void logFileOverflowProcess(void);
     friend void logMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+    friend void startLogging(const QString &loggingFolderName);
 
     void write(const QString &str);
 };

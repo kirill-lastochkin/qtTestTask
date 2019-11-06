@@ -4,6 +4,7 @@
 #include <QSqlTableModel>
 
 #include "databasemaintainer.h"
+#include "postmessage.h"
 
 DatabaseMaintainer::DatabaseMaintainer()
     : db(new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE", connectionName)))
@@ -28,8 +29,9 @@ DatabaseMaintainer::~DatabaseMaintainer()
 bool DatabaseMaintainer::connectDatabase(const QString &dbName)
 {
     db->setDatabaseName(dbName);
-    if (!db->open()) {
-        qCritical() << "Unaible to open DB " << dbName << "\n";
+    if (!db->open())
+    {
+        showMessage(QString("Unaible to open DB %1").arg(dbName));
         state = DatabaseState::ConnectionFailed;
         return false;
     }
