@@ -3,10 +3,6 @@
 
 #include "projectsdelegate.h"
 
-#include <QWidget>
-#include <QLoggingCategory>
-#include <QLineEdit>
-
 class ProjectInfoDelegate : public ProjectsDelegate
 {
     Q_OBJECT

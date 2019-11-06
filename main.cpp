@@ -1,13 +1,9 @@
 #include <QApplication>
-#include <QSqlTableModel>
-#include <QTableView>
 
 #include "databasemaintainer.h"
 #include "logger.h"
 #include "testdb.h"
 #include "modelview.h"
-
-#include <QLoggingCategory>
 
 int main(int argc, char *argv[])
 {

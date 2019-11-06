@@ -4,7 +4,6 @@
 #include <QStyledItemDelegate>
 #include <QSqlRecord>
 #include <QSqlTableModel>
-#include <QSortFilterProxyModel>
 
 class TableEditDelegate : public QStyledItemDelegate
 {

@@ -1,10 +1,10 @@
 #include "tableeditdelegate.h"
 #include "databasemaintainer.h"
-#include "logger.h"
 
 #include <QLoggingCategory>
 #include <QLineEdit>
 #include <QPainter>
+#include <QSortFilterProxyModel>
 
 void TableEditDelegate::setModelData(QWidget *editor,
                                      QAbstractItemModel *model,

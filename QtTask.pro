@@ -31,22 +31,22 @@ SOURCES += \
         delegate/projectsdelegate.cpp \
         delegate/tableeditdelegate.cpp \
         main.cpp \
-        model/customtablemodel.cpp \
+        model/customtablemodels.cpp \
+        model/modelview.cpp \
         test/testdb.cpp \
-        util/databasemaintainer.cpp \
-        util/logger.cpp \
-        util/modelview.cpp \
-        util/projectinfo.cpp \
-        util/validationtools.cpp \
-        view/commontab.cpp \
-        view/customerstab.cpp \
-        view/deleterecorddialog.cpp \
-        view/mainwindow.cpp \
-        view/projectinfoview.cpp \
-        view/projectinfowindow.cpp \
-        view/projectstab.cpp \
-        view/tableview.cpp \
-        view/timeindicator.cpp
+        util/DBmaintainer/databasemaintainer.cpp \
+        util/common/projectinfo.cpp \
+        util/logger/logger.cpp \
+        util/tools/validationtools.cpp \
+        view/tabs/commontab.cpp \
+        view/tabs/customerstab.cpp \
+        view/tabs/projectstab.cpp \
+        view/views/projectinfoview.cpp \
+        view/views/tableview.cpp \
+        view/widgets/timeindicator.cpp \
+        view/windows/deleterecorddialog.cpp \
+        view/windows/mainwindow.cpp \
+        view/windows/projectinfowindow.cpp
 
 HEADERS += \
     delegate/customersdelegate.h \
@@ -54,30 +54,39 @@ HEADERS += \
     delegate/projectsdelegate.h \
     delegate/tableeditdelegate.h \
     model/customtablemodels.h \
+    model/modelview.h \
     test/testdb.h \
-    util/customerinfo.h \
-    util/databasemaintainer.h \
-    util/fetchmodelinfo.h \
-    util/logger.h \
-    util/modelview.h \
-    util/projectinfo.h \
-    util/validationtools.h \
-    view/commontab.h \
-    view/customerstab.h \
-    view/deleterecorddialog.h \
-    view/mainwindow.h \
-    view/projectinfoview.h \
-    view/projectinfowindow.h \
-    view/projectstab.h \
-    view/tableview.h \
-    view/timeindicator.h
+    util/DBmaintainer/databasemaintainer.h \
+    util/common/customerinfo.h \
+    util/common/projectinfo.h \
+    util/logger/logger.h \
+    util/tools/fetchmodelinfo.h \
+    util/tools/validationtools.h \
+    view/tabs/commontab.h \
+    view/tabs/customerstab.h \
+    view/tabs/projectstab.h \
+    view/views/projectinfoview.h \
+    view/views/tableview.h \
+    view/widgets/clickablelabel.h \
+    view/widgets/timeindicator.h \
+    view/windows/deleterecorddialog.h \
+    view/windows/mainwindow.h \
+    view/windows/projectinfowindow.h
 
 INCLUDEPATH += \
     test \
     util \
     view \
     model \
-    delegate
+    delegate \
+    view/tabs \
+    view/views \
+    view/windows \
+    view/widgets \
+    util/DBmaintainer \
+    util/common \
+    util/logger \
+    util/tools
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
