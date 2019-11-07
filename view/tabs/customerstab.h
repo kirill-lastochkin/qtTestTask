@@ -9,6 +9,9 @@ class CustomersTab : public CommonTab
 
 public:
     explicit CustomersTab(QWidget *parent = nullptr);
+
+public slots:
+    void addRow(int newRow) override;
 };
 
 #endif // CUSTOMERSTAB_H

@@ -57,9 +57,6 @@ CommonTab::CommonTab(QWidget *parent)
 
 void CommonTab::addRow(int newRow)
 {
-    auto record = getSqlRecord(proxyModel()->index(newRow - 1, 0), tableView);
-    sourceModel()->setRecord(newRow, record);
-
     tableView->scrollToBottom();
 
     connect(editDelegate, SIGNAL(validationFailed(const QModelIndex &)), this, SLOT(editTableItemFailed(const QModelIndex &)), Qt::QueuedConnection);

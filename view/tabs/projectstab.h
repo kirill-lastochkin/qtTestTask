@@ -15,6 +15,7 @@ public:
 public slots:
     void showProjectInfo(void);
     void setProjectFilterByCustomer(const QString &newText);
+    void addRow(int newRow) override;
 
 signals:
     void showProjectPressed(const QString &project);

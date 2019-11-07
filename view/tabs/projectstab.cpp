@@ -60,3 +60,17 @@ void ProjectsTab::setProjectFilterByCustomer(const QString &newText)
     proxyModel()->setFilterKeyColumn(ProjectsColumns::customer);
     emit addingAllowed(newText.isEmpty());
 }
+
+void ProjectsTab::addRow(int newRow)
+{
+    auto record = getSqlRecord(proxyModel()->index(newRow - 1, 0), tableView);
+
+    QDate defaultStart(1, 1, 1), defaultEnd(3000, 1, 1);
+    record.setValue(ProjectsColumns::startDate, defaultStart);
+    record.setValue(ProjectsColumns::endDate, defaultEnd);
+    record.setValue(ProjectsColumns::description, QString());
+
+    sourceModel()->setRecord(newRow, record);
+
+    CommonTab::addRow(newRow);
+}

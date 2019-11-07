@@ -20,7 +20,7 @@ public:
     virtual void setTableModel(QSqlTableModel *model);
 
 public slots:
-    void addRow(int newRow);
+    virtual void addRow(int newRow);
     void delRows(void);
     void setEmptyDbImage(void);
 
